@@ -1,0 +1,77 @@
+name: Build Home bridge firmware
+
+on:
+  push:
+    branches: [main]
+    paths: ["Bridge/**", ".github/workflows/bridge.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install arduino-cli
+        uses: arduino/setup-arduino-cli@v2
+
+      - name: Install ESP32 core and libraries
+        env:
+          ESP_URL: https://espressif.github.io/arduino-esp32/package_esp32_index.json
+        run: |
+          arduino-cli core update-index --additional-urls "$ESP_URL"
+          arduino-cli core install esp32:esp32 --additional-urls "$ESP_URL"
+          arduino-cli lib update-index
+          arduino-cli lib install "HomeSpan" "NimBLE-Arduino@2.5.1"
+          arduino-cli core list
+          arduino-cli lib list
+
+      - name: Compile for ESP32, ESP32-S3, ESP32-C3
+        run: |
+          set -o pipefail
+          mkdir -p dist
+          : > build.log
+          for chip in esp32 esp32s3 esp32c3; do
+            echo "=== $chip ===" | tee -a build.log
+            arduino-cli compile \
+              --fqbn "esp32:esp32:${chip}:PartitionScheme=min_spiffs" \
+              --export-binaries --output-dir "build/${chip}" \
+              Bridge/DewPointBridge 2>&1 | tee -a build.log
+            cp "build/${chip}/DewPointBridge.ino.merged.bin" "dist/DewPointBridge-${chip}-full.bin"
+            cp "build/${chip}/DewPointBridge.ino.bin" "dist/DewPointBridge-${chip}-app.bin"
+          done
+          ls -lh dist
+
+      - name: Publish build log
+        if: always()
+        run: |
+          git config user.name "ci"
+          git config user.email "ci@users.noreply.github.com"
+          git checkout -B ci-logs-bridge
+          tail -n 400 build.log > ci-build.log 2>/dev/null || echo "no build.log produced" > ci-build.log
+          git add -f ci-build.log
+          git commit -m "Bridge CI log for ${GITHUB_SHA}" || true
+          git push -f origin ci-logs-bridge
+
+      - name: Upload firmware artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: DewPointBridge-firmware
+          path: dist/*.bin
+          if-no-files-found: error
+
+      - name: Publish firmware to firmware branch
+        if: success()
+        run: |
+          git config user.name "ci"
+          git config user.email "ci@users.noreply.github.com"
+          git checkout -B firmware
+          git rm -rq --cached . || true
+          cp dist/*.bin .
+          git add -f DewPointBridge-*.bin
+          git commit -m "Firmware for ${GITHUB_SHA}" || true
+          git push -f origin firmware
