@@ -26,6 +26,13 @@ enum GoveeParser {
         return n.hasPrefix("GV") || n.hasPrefix("GOVEE") || n.hasPrefix("IHOMENT") || n.contains("H5")
     }
 
+    /// Govee company IDs seen on thermometers when the name is missing.
+    static func looksLikeGovee(manufacturerData md: Data?) -> Bool {
+        guard let md, md.count >= 2 else { return false }
+        let company = UInt16(md[md.startIndex]) | (UInt16(md[md.startIndex + 1]) << 8)
+        return [0xEC88, 0x8801, 0x0001].contains(company) || md.range(of: Data("INTELLI_ROCKS".utf8)) != nil
+    }
+
     /// Three-byte packed temp/humidity used by H5072/H5075/H510x/H5174/H5177.
     static func decodePacked(_ a: UInt8, _ b: UInt8, _ c: UInt8) -> (Double, Double)? {
         let base = (Int(a) << 16) | (Int(b) << 8) | Int(c)

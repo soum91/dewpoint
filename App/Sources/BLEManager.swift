@@ -6,6 +6,7 @@ struct RawAdvert: Equatable {
     let name: String
     let rssi: Int
     let hex: String
+    var services: String = ""
     let parsed: GoveeAdvert?
     let lastSeen: Date
 }
@@ -72,6 +73,10 @@ final class BLEManager: NSObject, ObservableObject {
     @Published private(set) var raw: [UUID: RawAdvert] = [:]
     var captureRaw = false {
         didSet { if !captureRaw { raw = [:] } }
+    }
+    /// Finder: include every Bluetooth device, not just Govee-looking ones.
+    var captureAll = false {
+        didSet { raw = [:] }
     }
 
     private var central: CBCentralManager!
@@ -292,10 +297,12 @@ extension BLEManager: CBCentralManagerDelegate {
         let name = (advertisementData[CBAdvertisementDataLocalNameKey] as? String) ?? peripheral.name ?? ""
         let md = advertisementData[CBAdvertisementDataManufacturerDataKey] as? Data
         let adv = GoveeParser.parse(name: name, manufacturerData: md)
-        if captureRaw, adv != nil || GoveeParser.looksLikeGovee(name: name),
+        if captureRaw, captureAll || adv != nil || GoveeParser.looksLikeGovee(name: name) || GoveeParser.looksLikeGovee(manufacturerData: md),
            Date().timeIntervalSince(raw[peripheral.identifier]?.lastSeen ?? .distantPast) > 1 {
             raw[peripheral.identifier] = RawAdvert(name: name, rssi: RSSI.intValue,
                                                    hex: md.map { $0.map { String(format: "%02X", $0) }.joined(separator: " ") } ?? "(no manufacturer data)",
+                                                   services: ((advertisementData[CBAdvertisementDataServiceUUIDsKey] as? [CBUUID]) ?? [])
+                                                       .map(\.uuidString).joined(separator: ", "),
                                                    parsed: adv, lastSeen: Date())
         }
         guard let adv else { return }

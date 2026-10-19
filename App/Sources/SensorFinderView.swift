@@ -7,6 +7,7 @@ struct SensorFinderView: View {
     @Environment(\.dismiss) private var dismiss
     @AppStorage("tempUnit") private var unitRaw = TempUnit.celsius.rawValue
     private var unit: TempUnit { TempUnit(rawValue: unitRaw) ?? .celsius }
+    @State private var showAll = false
 
     var body: some View {
         NavigationStack {
@@ -14,9 +15,11 @@ struct SensorFinderView: View {
                 Section {
                     Text("Hold your sensor right against the phone. Yours is the one that jumps to the top with a signal around -40 dBm or stronger. Compare the 4 characters after the underscore with the end of the MAC on the sensor's label or in the Govee app.")
                         .font(.footnote).foregroundStyle(.secondary)
+                    Toggle("Show every Bluetooth device", isOn: $showAll)
+                        .onChange(of: showAll) { ble.captureAll = $0 }
                 }
 
-                let items = ble.raw.sorted { $0.value.rssi > $1.value.rssi }
+                let items = Array(ble.raw.sorted { $0.value.rssi > $1.value.rssi }.prefix(40))
                 if items.isEmpty {
                     HStack(spacing: 10) {
                         ProgressView()
@@ -33,7 +36,7 @@ struct SensorFinderView: View {
                 ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } }
             }
             .onAppear { ble.captureRaw = true }
-            .onDisappear { ble.captureRaw = false }
+            .onDisappear { ble.captureAll = false; ble.captureRaw = false }
         }
     }
 
@@ -52,8 +55,11 @@ struct SensorFinderView: View {
                 Text("\(p.model) · \(unit.format(p.tempC)) · \(p.humidity.clean())% · battery \(p.battery)%")
                     .font(.caption)
             } else {
-                Text("Not decoded. Send a screenshot of this row so the format can be added.")
+                Text("Not decoded. If this is your sensor, send a screenshot of this row.")
                     .font(.caption).foregroundStyle(.orange)
+            }
+            if !r.services.isEmpty {
+                Text("Services: \(r.services)").font(.caption2.monospaced()).foregroundStyle(.secondary)
             }
             Text(r.hex)
                 .font(.caption2.monospaced())
