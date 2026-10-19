@@ -107,8 +107,9 @@ struct SensorCard: View {
                     }
                     .font(.caption)
                     TimelineView(.periodic(from: .now, by: 15)) { _ in
-                        Text(r.lastSeen, style: .relative).font(.caption2).foregroundStyle(.tertiary)
-                        + Text(" ago").font(.caption2).foregroundStyle(.tertiary)
+                        (Text(r.lastSeen, style: .relative) + Text(" ago"))
+                            .font(.caption2)
+                            .foregroundStyle(.tertiary)
                     }
                 }
                 Spacer()
