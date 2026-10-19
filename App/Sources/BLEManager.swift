@@ -2,6 +2,14 @@ import Foundation
 import CoreBluetooth
 import Combine
 
+struct RawAdvert: Equatable {
+    let name: String
+    let rssi: Int
+    let hex: String
+    let parsed: GoveeAdvert?
+    let lastSeen: Date
+}
+
 enum SyncState: Equatable {
     case idle
     case connecting
@@ -60,6 +68,11 @@ final class BLEManager: NSObject, ObservableObject {
     @Published private(set) var live: [UUID: LiveReading] = [:]
     @Published private(set) var nearby: [UUID: LiveReading] = [:]   // seen but not added
     @Published private(set) var sync: [UUID: SyncState] = [:]
+    /// Every Govee-looking advert, parsed or not. Only filled while the finder sheet is open.
+    @Published private(set) var raw: [UUID: RawAdvert] = [:]
+    var captureRaw = false {
+        didSet { if !captureRaw { raw = [:] } }
+    }
 
     private var central: CBCentralManager!
     private var peripherals: [UUID: CBPeripheral] = [:]
@@ -94,7 +107,10 @@ final class BLEManager: NSObject, ObservableObject {
     func sensor(_ id: UUID) -> SensorInfo? { sensors.first { $0.id == id } }
 
     func add(_ id: UUID) {
-        guard sensor(id) == nil, let r = nearby[id] else { return }
+        guard sensor(id) == nil, let r = nearby[id] ?? raw[id].flatMap({ ra in
+            ra.parsed.map { LiveReading(tempC: $0.tempC, humidity: $0.humidity, battery: $0.battery,
+                                        rssi: ra.rssi, lastSeen: ra.lastSeen, model: $0.model, name: ra.name) }
+        }) else { return }
         sensors.append(SensorInfo(id: id, model: r.model, advertisedName: r.name))
         live[id] = r
         nearby[id] = nil
@@ -105,6 +121,10 @@ final class BLEManager: NSObject, ObservableObject {
         guard let i = sensors.firstIndex(where: { $0.id == s.id }) else { return }
         sensors[i] = s
         saveSensors()
+    }
+
+    func remove(at offsets: IndexSet) {
+        for id in offsets.map({ sensors[$0].id }) { remove(id) }
     }
 
     func remove(_ id: UUID) {
@@ -271,7 +291,14 @@ extension BLEManager: CBCentralManagerDelegate {
                         advertisementData: [String: Any], rssi RSSI: NSNumber) {
         let name = (advertisementData[CBAdvertisementDataLocalNameKey] as? String) ?? peripheral.name ?? ""
         let md = advertisementData[CBAdvertisementDataManufacturerDataKey] as? Data
-        guard let adv = GoveeParser.parse(name: name, manufacturerData: md) else { return }
+        let adv = GoveeParser.parse(name: name, manufacturerData: md)
+        if captureRaw, adv != nil || GoveeParser.looksLikeGovee(name: name),
+           Date().timeIntervalSince(raw[peripheral.identifier]?.lastSeen ?? .distantPast) > 1 {
+            raw[peripheral.identifier] = RawAdvert(name: name, rssi: RSSI.intValue,
+                                                   hex: md.map { $0.map { String(format: "%02X", $0) }.joined(separator: " ") } ?? "(no manufacturer data)",
+                                                   parsed: adv, lastSeen: Date())
+        }
+        guard let adv else { return }
         peripherals[peripheral.identifier] = peripheral
         handle(adv, id: peripheral.identifier, name: name, rssi: RSSI.intValue)
     }

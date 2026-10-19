@@ -21,6 +21,11 @@ enum GoveeParser {
         return String(name[r])
     }
 
+    static func looksLikeGovee(name: String) -> Bool {
+        let n = name.uppercased()
+        return n.hasPrefix("GV") || n.hasPrefix("GOVEE") || n.hasPrefix("IHOMENT") || n.contains("H5")
+    }
+
     /// Three-byte packed temp/humidity used by H5072/H5075/H510x/H5174/H5177.
     static func decodePacked(_ a: UInt8, _ b: UInt8, _ c: UInt8) -> (Double, Double)? {
         let base = (Int(a) << 16) | (Int(b) << 8) | Int(c)

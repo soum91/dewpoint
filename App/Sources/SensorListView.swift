@@ -5,6 +5,7 @@ struct SensorListView: View {
     @EnvironmentObject var ble: BLEManager
     @AppStorage("tempUnit") private var unitRaw = TempUnit.celsius.rawValue
     private var unit: TempUnit { TempUnit(rawValue: unitRaw) ?? .celsius }
+    @State private var showFinder = false
 
     var body: some View {
         NavigationStack {
@@ -31,8 +32,14 @@ struct SensorListView: View {
                             NavigationLink(value: s.id) {
                                 SensorCard(sensor: s, reading: ble.live[s.id], unit: unit)
                             }
+                            .swipeActions {
+                                Button(role: .destructive) { ble.remove(s.id) } label: {
+                                    Label("Remove", systemImage: "trash")
+                                }
+                            }
                         }
                         .onMove { ble.move(from: $0, to: $1) }
+                        .onDelete { ble.remove(at: $0) }
                     }
                 }
 
@@ -72,8 +79,14 @@ struct SensorListView: View {
                 SensorDetailView(sensorID: id)
             }
             .toolbar {
-                if !ble.sensors.isEmpty { EditButton() }
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button { showFinder = true } label: { Image(systemName: "dot.radiowaves.left.and.right") }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    if !ble.sensors.isEmpty { EditButton() }
+                }
             }
+            .sheet(isPresented: $showFinder) { SensorFinderView() }
         }
     }
 
@@ -93,38 +106,44 @@ struct SensorCard: View {
     let unit: TempUnit
 
     var body: some View {
-        HStack(alignment: .center, spacing: 14) {
-            if let r = reading {
-                let t = sensor.calibratedTemp(r.tempC)
-                let h = sensor.calibratedHumidity(r.humidity)
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(sensor.displayName).font(.headline)
-                    HStack(spacing: 10) {
+        HStack(alignment: .center, spacing: 12) {
+            VStack(alignment: .leading, spacing: 5) {
+                Text(sensor.displayName).font(.headline).lineLimit(1)
+                if let r = reading {
+                    let h = sensor.calibratedHumidity(r.humidity)
+                    HStack(spacing: 12) {
                         Label("\(h.clean())%", systemImage: "humidity.fill")
                             .foregroundStyle(Theme.humidity)
                         Label("\(r.battery)%", systemImage: Theme.batteryIcon(r.battery))
-                            .foregroundStyle(r.battery <= 15 ? .red : .secondary)
+                            .foregroundStyle(r.battery <= 15 ? Color.red : Color.secondary)
                     }
                     .font(.caption)
-                    TimelineView(.periodic(from: .now, by: 15)) { _ in
+                    .lineLimit(1)
+                    .fixedSize()
+                    TimelineView(.periodic(from: .now, by: 5)) { ctx in
+                        let stale = ctx.date.timeIntervalSince(r.lastSeen) > 120
                         (Text(r.lastSeen, style: .relative) + Text(" ago"))
                             .font(.caption2)
-                            .foregroundStyle(.tertiary)
+                            .foregroundStyle(stale ? Color.orange : Color.secondary)
+                            .lineLimit(1)
                     }
-                }
-                Spacer()
-                Text(String(format: "%.1f°", unit.convert(t)))
-                    .font(.system(size: 40, weight: .semibold, design: .rounded))
-                    .foregroundStyle(Theme.tempColor(t))
-                    .monospacedDigit()
-            } else {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(sensor.displayName).font(.headline)
+                } else {
                     Text("Waiting for a reading…").font(.caption).foregroundStyle(.secondary)
                 }
-                Spacer()
+            }
+            .layoutPriority(1)
+            Spacer(minLength: 4)
+            if let r = reading {
+                let t = sensor.calibratedTemp(r.tempC)
+                Text(String(format: "%.1f°", unit.convert(t)))
+                    .font(.system(size: 38, weight: .semibold, design: .rounded))
+                    .foregroundStyle(Theme.tempColor(t))
+                    .monospacedDigit()
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+            } else {
                 Text("--°")
-                    .font(.system(size: 40, weight: .semibold, design: .rounded))
+                    .font(.system(size: 38, weight: .semibold, design: .rounded))
                     .foregroundStyle(.tertiary)
             }
         }
