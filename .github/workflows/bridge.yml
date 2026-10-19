@@ -75,3 +75,18 @@ jobs:
           git add -f DewPointBridge-*.bin
           git commit -m "Firmware for ${GITHUB_SHA}" || true
           git push -f origin firmware
+
+      - name: Publish GitHub Release
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git tag -f firmware-latest "$GITHUB_SHA"
+          git push -f origin firmware-latest
+          NOTES="Apple Home bridge firmware built from ${GITHUB_SHA::7}. Flash the -full.bin for your chip at 0x0. See Bridge/README.md."
+          if gh release view firmware-latest >/dev/null 2>&1; then
+            gh release edit firmware-latest --title "Bridge firmware (latest build)" --notes "$NOTES" --latest=false
+          else
+            gh release create firmware-latest --title "Bridge firmware (latest build)" --notes "$NOTES" --latest=false
+          fi
+          gh release upload firmware-latest dist/*.bin --clobber

@@ -19,7 +19,7 @@ Put the board somewhere powered within Bluetooth range of the sensor (same room 
 
 ## 1. Get the firmware
 
-CI builds it on every push. Download from the `firmware` branch:
+CI builds it on every push. Download from the [firmware release](https://github.com/soum91/dewpoint/releases/tag/firmware-latest):
 
 | Board | File |
 |---|---|
