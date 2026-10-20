@@ -1,0 +1,41 @@
+{
+  "name": "DewPoint by soum91",
+  "identifier": "io.github.soum91.dewpoint",
+  "subtitle": "Govee H5102 thermometer app",
+  "description": "Reads Govee H5102 thermo-hygrometers over Bluetooth without the Govee app, with history and an ESP32 bridge for Apple Home.",
+  "iconURL": "https://raw.githubusercontent.com/soum91/dewpoint/main/App/Sources/Assets.xcassets/AppIcon.appiconset/icon_1024.png",
+  "website": "https://github.com/soum91/dewpoint",
+  "sourceURL": "https://raw.githubusercontent.com/soum91/dewpoint/source/source.json",
+  "tintColor": "5AC8FA",
+  "apps": [
+    {
+      "name": "DewPoint",
+      "bundleIdentifier": "com.dewpoint.app",
+      "developerName": "soum91",
+      "subtitle": "Govee H5102 thermometer app",
+      "localizedDescription": "Reads Govee H5102 thermo-hygrometers over Bluetooth without the Govee app, with history and an ESP32 bridge for Apple Home.",
+      "iconURL": "https://raw.githubusercontent.com/soum91/dewpoint/main/App/Sources/Assets.xcassets/AppIcon.appiconset/icon_1024.png",
+      "tintColor": "5AC8FA",
+      "category": "utilities",
+      "screenshotURLs": [],
+      "versions": [
+        {
+          "version": "1.0",
+          "buildVersion": "6",
+          "date": "2026-10-20T18:47:43Z",
+          "localizedDescription": "- CI: build number in IPA file names and changelog in release notes (4dc6eca)\n- Finder: option to show every Bluetooth device with services and raw data (c18be13)\n- Remove sensors from the list, add Find My Sensor scanner, fix card layout (96eb353)\n- Publish IPA and firmware as GitHub Releases (94addcb)\n- Fix iOS 16 build: Text concatenation styling (5bacf45)\n- DewPoint: Govee H5102 iOS app + ESP32 Apple Home bridge (52d65f1)",
+          "downloadURL": "https://github.com/soum91/dewpoint/releases/download/build-6/DewPoint-1.0-build-6.ipa",
+          "size": 284323,
+          "minOSVersion": "16.0"
+        }
+      ],
+      "version": "1.0",
+      "versionDate": "2026-10-20T18:47:43Z",
+      "versionDescription": "- CI: build number in IPA file names and changelog in release notes (4dc6eca)\n- Finder: option to show every Bluetooth device with services and raw data (c18be13)\n- Remove sensors from the list, add Find My Sensor scanner, fix card layout (96eb353)\n- Publish IPA and firmware as GitHub Releases (94addcb)\n- Fix iOS 16 build: Text concatenation styling (5bacf45)\n- DewPoint: Govee H5102 iOS app + ESP32 Apple Home bridge (52d65f1)",
+      "downloadURL": "https://github.com/soum91/dewpoint/releases/download/build-6/DewPoint-1.0-build-6.ipa",
+      "size": 284323,
+      "appPermissions": {}
+    }
+  ],
+  "news": []
+}
