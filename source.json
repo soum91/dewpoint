@@ -21,6 +21,15 @@
       "versions": [
         {
           "version": "1.0",
+          "buildVersion": "7",
+          "date": "2026-10-20T18:50:33Z",
+          "localizedDescription": "- CI: publish an AltStore-format source for FlareStore / AltStore / SideStore (dd3aab9)\n- Backfill script: repair mis-tagged releases [skip ci] (cd7b8d4)",
+          "downloadURL": "https://github.com/soum91/dewpoint/releases/download/build-7/DewPoint-1.0-build-7.ipa",
+          "size": 284322,
+          "minOSVersion": "16.0"
+        },
+        {
+          "version": "1.0",
           "buildVersion": "6",
           "date": "2026-10-20T18:47:43Z",
           "localizedDescription": "- CI: build number in IPA file names and changelog in release notes (4dc6eca)\n- Finder: option to show every Bluetooth device with services and raw data (c18be13)\n- Remove sensors from the list, add Find My Sensor scanner, fix card layout (96eb353)\n- Publish IPA and firmware as GitHub Releases (94addcb)\n- Fix iOS 16 build: Text concatenation styling (5bacf45)\n- DewPoint: Govee H5102 iOS app + ESP32 Apple Home bridge (52d65f1)",
@@ -30,10 +39,10 @@
         }
       ],
       "version": "1.0",
-      "versionDate": "2026-10-20T18:47:43Z",
-      "versionDescription": "- CI: build number in IPA file names and changelog in release notes (4dc6eca)\n- Finder: option to show every Bluetooth device with services and raw data (c18be13)\n- Remove sensors from the list, add Find My Sensor scanner, fix card layout (96eb353)\n- Publish IPA and firmware as GitHub Releases (94addcb)\n- Fix iOS 16 build: Text concatenation styling (5bacf45)\n- DewPoint: Govee H5102 iOS app + ESP32 Apple Home bridge (52d65f1)",
-      "downloadURL": "https://github.com/soum91/dewpoint/releases/download/build-6/DewPoint-1.0-build-6.ipa",
-      "size": 284323,
+      "versionDate": "2026-10-20T18:50:33Z",
+      "versionDescription": "- CI: publish an AltStore-format source for FlareStore / AltStore / SideStore (dd3aab9)\n- Backfill script: repair mis-tagged releases [skip ci] (cd7b8d4)",
+      "downloadURL": "https://github.com/soum91/dewpoint/releases/download/build-7/DewPoint-1.0-build-7.ipa",
+      "size": 284322,
       "appPermissions": {}
     }
   ],
