@@ -3,11 +3,16 @@ name: Build iOS app
 on:
   push:
     branches: [main]
-    paths: ["App/**", "project.yml", ".github/workflows/ios.yml"]
+    paths: ["App/**", "project.yml", ".github/workflows/ios.yml", ".github/scripts/**"]
   workflow_dispatch:
 
 permissions:
   contents: write
+
+env:
+  APP: DewPoint
+  BUILD: ${{ github.run_number }}
+  TAG: build-${{ github.run_number }}
 
 jobs:
   build:
@@ -15,6 +20,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Install XcodeGen
         run: brew install xcodegen
@@ -38,6 +45,7 @@ jobs:
             CODE_SIGN_IDENTITY="" \
             CODE_SIGN_ENTITLEMENTS="" \
             DEVELOPMENT_TEAM="" \
+            CURRENT_PROJECT_VERSION=$BUILD \
             2>&1 | tee "$GITHUB_WORKSPACE/build.log"
 
       - name: Publish build log (so it can be read via API)
@@ -50,6 +58,7 @@ jobs:
           git add -f ci-build.log
           git commit -m "CI build log for ${GITHUB_SHA}" || true
           git push -f origin ci-logs-ios
+          git checkout -f "$GITHUB_SHA"
 
       - name: Package into unsigned .ipa
         run: |
@@ -57,16 +66,38 @@ jobs:
           cd "$APP_DIR"
           mkdir -p Payload
           cp -R DewPoint.app Payload/
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $BUILD" Payload/DewPoint.app/Info.plist
+          VERSION=$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" Payload/DewPoint.app/Info.plist)
+          IPA="$APP-$VERSION-build-$BUILD.ipa"
           mkdir -p "$GITHUB_WORKSPACE/dist"
-          zip -qr "$GITHUB_WORKSPACE/dist/DewPoint-unsigned.ipa" Payload
+          zip -qr "$GITHUB_WORKSPACE/dist/$IPA" Payload
           ls -lh "$GITHUB_WORKSPACE/dist"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "IPA=$IPA" >> "$GITHUB_ENV"
+
+      - name: Changelog
+        run: |
+          .github/scripts/release-notes.sh "$APP" "$VERSION" "$BUILD" 'build-*' "$TAG" \
+            "Unsigned IPA. Sideload with AltStore, SideStore, Sideloadly or TrollStore." > "$RUNNER_TEMP/release-notes.md"
+          cat "$RUNNER_TEMP/release-notes.md"
 
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
-          name: DewPoint-unsigned-ipa
-          path: dist/DewPoint-unsigned.ipa
+          name: ${{ env.APP }}-build-${{ env.BUILD }}-ipa
+          path: dist/${{ env.IPA }}
           if-no-files-found: error
+
+      - name: Publish GitHub Release
+        if: success()
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG }}
+          target_commitish: ${{ github.sha }}
+          name: DewPoint ${{ env.VERSION }} build ${{ env.BUILD }}
+          body_path: ${{ runner.temp }}/release-notes.md
+          files: dist/${{ env.IPA }}
+          make_latest: true
 
       - name: Publish IPA to dist branch (readable via API)
         if: success()
@@ -74,22 +105,7 @@ jobs:
           git config user.name "ci"
           git config user.email "ci@users.noreply.github.com"
           git checkout -B dist
-          cp "$GITHUB_WORKSPACE/dist/DewPoint-unsigned.ipa" DewPoint-unsigned.ipa
+          cp "$GITHUB_WORKSPACE/dist/$IPA" DewPoint-unsigned.ipa
           git add -f DewPoint-unsigned.ipa
-          git commit -m "IPA for ${GITHUB_SHA}" || true
+          git commit -m "IPA build $BUILD for ${GITHUB_SHA}" || true
           git push -f origin dist
-
-      - name: Publish GitHub Release
-        if: success()
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          git tag -f latest "$GITHUB_SHA"
-          git push -f origin latest
-          NOTES="Built from ${GITHUB_SHA::7}. Unsigned IPA, sideload with AltStore, SideStore, Sideloadly or TrollStore."
-          if gh release view latest >/dev/null 2>&1; then
-            gh release edit latest --title "DewPoint (latest build)" --notes "$NOTES" --latest
-          else
-            gh release create latest --title "DewPoint (latest build)" --notes "$NOTES" --latest
-          fi
-          gh release upload latest "$GITHUB_WORKSPACE/dist/DewPoint-unsigned.ipa" --clobber

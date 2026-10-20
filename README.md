@@ -22,7 +22,7 @@ Only sensors you tap **Add** on get logged, so a neighbour's sensor never ends u
 
 There's no Xcode needed. Every push to `main` builds an unsigned IPA on GitHub Actions.
 
-1. Download `DewPoint-unsigned.ipa` from [Releases](https://github.com/soum91/dewpoint/releases/latest).
+1. Download `DewPoint-<version>-build-<N>.ipa` from [Releases](https://github.com/soum91/dewpoint/releases/latest).
 2. Sideload with AltStore, SideStore, Sideloadly or TrollStore.
 3. Close the Govee Home app before syncing history (only one app can hold the sensor's connection).
 
