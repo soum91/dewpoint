@@ -1,0 +1,13 @@
+{
+  "name": "DewPoint",
+  "sourceName": "DewPoint by soum91",
+  "sourceIdentifier": "io.github.soum91.dewpoint",
+  "subtitle": "Govee H5102 thermometer app",
+  "description": "Reads Govee H5102 thermo-hygrometers over Bluetooth without the Govee app, with history and an ESP32 bridge for Apple Home.",
+  "developerName": "soum91",
+  "iconURL": "https://raw.githubusercontent.com/soum91/dewpoint/main/App/Sources/Assets.xcassets/AppIcon.appiconset/icon_1024.png",
+  "tintColor": "5AC8FA",
+  "category": "utilities",
+  "website": "https://github.com/soum91/dewpoint",
+  "sourceURL": "https://raw.githubusercontent.com/soum91/dewpoint/source/source.json"
+}
