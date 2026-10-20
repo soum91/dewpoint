@@ -20,6 +20,15 @@
       "screenshotURLs": [],
       "versions": [
         {
+          "version": "1.0.8",
+          "buildVersion": "8",
+          "date": "2026-10-20T20:20:36Z",
+          "localizedDescription": "- CI: version string carries the build number (<version>.<build>) (9057633)",
+          "downloadURL": "https://github.com/soum91/dewpoint/releases/download/build-8/DewPoint-1.0-build-8.ipa",
+          "size": 284326,
+          "minOSVersion": "16.0"
+        },
+        {
           "version": "1.0",
           "buildVersion": "7",
           "date": "2026-10-20T18:50:33Z",
@@ -38,11 +47,11 @@
           "minOSVersion": "16.0"
         }
       ],
-      "version": "1.0",
-      "versionDate": "2026-10-20T18:50:33Z",
-      "versionDescription": "- CI: publish an AltStore-format source for FlareStore / AltStore / SideStore (dd3aab9)\n- Backfill script: repair mis-tagged releases [skip ci] (cd7b8d4)",
-      "downloadURL": "https://github.com/soum91/dewpoint/releases/download/build-7/DewPoint-1.0-build-7.ipa",
-      "size": 284322,
+      "version": "1.0.8",
+      "versionDate": "2026-10-20T20:20:36Z",
+      "versionDescription": "- CI: version string carries the build number (<version>.<build>) (9057633)",
+      "downloadURL": "https://github.com/soum91/dewpoint/releases/download/build-8/DewPoint-1.0-build-8.ipa",
+      "size": 284326,
       "appPermissions": {}
     }
   ],
