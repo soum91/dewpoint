@@ -20,6 +20,15 @@
       "screenshotURLs": [],
       "versions": [
         {
+          "version": "1.0.10",
+          "buildVersion": "10",
+          "date": "2026-10-25T13:41:52Z",
+          "localizedDescription": "- Preserve last sensor readings and migrate existing snapshots (5728178)",
+          "downloadURL": "https://github.com/soum91/dewpoint/releases/download/build-10/DewPoint-1.0-build-10.ipa",
+          "size": 373359,
+          "minOSVersion": "16.0"
+        },
+        {
           "version": "1.0.9",
           "buildVersion": "9",
           "date": "2026-10-25T13:22:27Z",
@@ -56,11 +65,11 @@
           "minOSVersion": "16.0"
         }
       ],
-      "version": "1.0.9",
-      "versionDate": "2026-10-25T13:22:27Z",
-      "versionDescription": "- Add per-room Lock Screen widgets and Control Center readings (9f53f4b)",
-      "downloadURL": "https://github.com/soum91/dewpoint/releases/download/build-9/DewPoint-1.0-build-9.ipa",
-      "size": 372227,
+      "version": "1.0.10",
+      "versionDate": "2026-10-25T13:41:52Z",
+      "versionDescription": "- Preserve last sensor readings and migrate existing snapshots (5728178)",
+      "downloadURL": "https://github.com/soum91/dewpoint/releases/download/build-10/DewPoint-1.0-build-10.ipa",
+      "size": 373359,
       "appPermissions": {}
     }
   ],
