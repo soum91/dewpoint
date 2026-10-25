@@ -15,13 +15,31 @@ enum SnapshotStore {
     #if !WIDGET_EXTENSION
     static func save(sensors: [SensorInfo], live: [UUID: LiveReading]) {
         let previous = load()
-        let snaps: [Snapshot] = sensors.compactMap { s in
-            guard let r = live[s.id] else {
-                guard let old = previous.first(where: { $0.id == s.id.uuidString || ($0.id.isEmpty && $0.name == s.displayName) }) else { return nil }
-                return Snapshot(id: s.id.uuidString, name: s.displayName, tempC: old.tempC, humidity: old.humidity, battery: old.battery, at: old.at)
+        let snaps: [Snapshot] = sensors.compactMap { sensor in
+            if let reading = live[sensor.id] {
+                return Snapshot(id: sensor.id.uuidString, name: sensor.displayName,
+                                tempC: sensor.calibratedTemp(reading.tempC),
+                                humidity: sensor.calibratedHumidity(reading.humidity),
+                                battery: reading.battery, at: reading.lastSeen)
             }
-            return Snapshot(id: s.id.uuidString, name: s.displayName, tempC: s.calibratedTemp(r.tempC),
-                            humidity: s.calibratedHumidity(r.humidity), battery: r.battery, at: r.lastSeen)
+
+            // Reuse a saved reading when the sensor isn't nearby. On a fresh
+            // App Group container, recover a reading from the app's private
+            // history instead of replacing the widget with "--".
+            let old = previous.first {
+                $0.id == sensor.id.uuidString || ($0.id.isEmpty && $0.name == sensor.displayName)
+            }
+            if let last = HistoryStore.shared.readings(for: sensor.id).last,
+               last.date > (old?.at ?? .distantPast) {
+                return Snapshot(id: sensor.id.uuidString, name: sensor.displayName,
+                                tempC: sensor.calibratedTemp(last.tempC),
+                                humidity: sensor.calibratedHumidity(last.humidity),
+                                battery: old?.battery ?? -1, at: last.date)
+            }
+            guard let old else { return nil }
+            return Snapshot(id: sensor.id.uuidString, name: sensor.displayName,
+                            tempC: old.tempC, humidity: old.humidity,
+                            battery: old.battery, at: old.at)
         }
         guard let data = try? JSONEncoder().encode(snaps) else { return }
         UserDefaults.standard.set(data, forKey: key)
@@ -33,10 +51,13 @@ enum SnapshotStore {
 
     #endif
     static func load() -> [Snapshot] {
-        if let shared = AppGroup.read([Snapshot].self, "sensor-widget.json") { return shared }
-        guard let data = UserDefaults.standard.data(forKey: key),
-              let s = try? JSONDecoder().decode([Snapshot].self, from: data) else { return [] }
-        return s
+        let shared = AppGroup.read([Snapshot].self, "sensor-widget.json")
+        let local: [Snapshot]? = UserDefaults.standard.data(forKey: key)
+            .flatMap { try? JSONDecoder().decode([Snapshot].self, from: $0) }
+        // A re-signed installation may get a newly created (empty) App Group.
+        // Keep the app's last private snapshots until they can be republished.
+        if let shared, !shared.isEmpty { return shared }
+        return local ?? shared ?? []
     }
 }
 
