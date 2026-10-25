@@ -20,19 +20,19 @@ struct RoomEntry: TimelineEntry {
     var humidity: String { sensor.map { String(format: "%.0f%%", $0.humidity) } ?? "--" }
     static func make(_ id: String? = nil) -> RoomEntry {
         let list = SnapshotStore.load()
-        let sensor = id == nil ? list.first : list.first { $0.id == id }
+        let sensor = id == nil ? list.first : (list.first { $0.id == id } ?? (list.count == 1 ? list.first : nil))
         return .init(date: .now, sensor: sensor)
     }
 }
 struct LegacyRoomProvider: TimelineProvider {
-    func placeholder(in context: Context) -> RoomEntry { .init(date: .now, sensor: nil) }
+    func placeholder(in context: Context) -> RoomEntry { .make() }
     func getSnapshot(in context: Context, completion: @escaping (RoomEntry) -> Void) { completion(.make()) }
     func getTimeline(in context: Context, completion: @escaping (Timeline<RoomEntry>) -> Void) {
         completion(Timeline(entries: [.make()], policy: .after(.now.addingTimeInterval(900))))
     }
 }
 @available(iOS 17.0, *) struct RoomProvider: AppIntentTimelineProvider {
-    func placeholder(in context: Context) -> RoomEntry { .init(date: .now, sensor: nil) }
+    func placeholder(in context: Context) -> RoomEntry { .make() }
     func snapshot(for configuration: RoomWidgetConfiguration, in context: Context) async -> RoomEntry { .make(configuration.sensor?.id) }
     func timeline(for configuration: RoomWidgetConfiguration, in context: Context) async -> Timeline<RoomEntry> {
         Timeline(entries: [.make(configuration.sensor?.id)], policy: .after(.now.addingTimeInterval(900)))
@@ -68,7 +68,7 @@ struct RoomView: View {
                 Label(entry.sensor?.name ?? "DewPoint", systemImage: "thermometer.medium").font(.caption.bold()).lineLimit(1)
                 Text("\(entry.temperature) · \(entry.humidity)").font(family == .systemSmall ? .title3.bold() : .headline).minimumScaleFactor(0.6)
                 if let s = entry.sensor {
-                    Text("\(s.humidity < 30 ? "Dry" : s.humidity < 60 ? "Comfortable" : "Humid") · \(s.battery)% battery").font(.caption2)
+                    Text("\(s.humidity < 30 ? "Dry" : s.humidity < 60 ? "Comfortable" : "Humid")" + (s.battery >= 0 ? " · \(s.battery)% battery" : "")).font(.caption2)
                     Text("Updated \(s.at, style: .relative) ago").font(.caption2).foregroundStyle(.secondary)
                 } else { Text("Open DewPoint near your sensor").font(.caption2) }
             }
@@ -82,7 +82,7 @@ struct RoomView: View {
     }
 }
 @available(iOS 18.0, *) struct RoomControlProvider: AppIntentControlValueProvider {
-    func previewValue(configuration: RoomControlConfiguration) -> RoomEntry { .init(date: .now, sensor: nil) }
+    func previewValue(configuration: RoomControlConfiguration) -> RoomEntry { .make(configuration.sensor?.id) }
     func currentValue(configuration: RoomControlConfiguration) async throws -> RoomEntry { .make(configuration.sensor?.id) }
 }
 @available(iOS 18.0, *) struct RoomTemperatureControl: ControlWidget {
