@@ -54,32 +54,3 @@ final class AlertManager {
         UNUserNotificationCenter.current().add(req)
     }
 }
-
-/// Last known values, readable by Shortcuts intents without spinning up Bluetooth.
-enum SnapshotStore {
-    struct Snapshot: Codable {
-        let name: String
-        let tempC: Double
-        let humidity: Double
-        let battery: Int
-        let at: Date
-    }
-
-    private static let key = "dewpoint.snapshot.v1"
-
-    static func save(sensors: [SensorInfo], live: [UUID: LiveReading]) {
-        let snaps: [Snapshot] = sensors.compactMap { s in
-            guard let r = live[s.id] else { return nil }
-            return Snapshot(name: s.displayName, tempC: s.calibratedTemp(r.tempC),
-                            humidity: s.calibratedHumidity(r.humidity), battery: r.battery, at: r.lastSeen)
-        }
-        guard !snaps.isEmpty, let data = try? JSONEncoder().encode(snaps) else { return }
-        UserDefaults.standard.set(data, forKey: key)
-    }
-
-    static func load() -> [Snapshot] {
-        guard let data = UserDefaults.standard.data(forKey: key),
-              let s = try? JSONDecoder().decode([Snapshot].self, from: data) else { return [] }
-        return s
-    }
-}

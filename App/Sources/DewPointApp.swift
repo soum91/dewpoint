@@ -1,10 +1,13 @@
 import SwiftUI
+import WidgetKit
 
 @main
 struct DewPointApp: App {
+    @StateObject private var route = DewPointRoute.shared
     @StateObject private var ble = BLEManager.shared
     @StateObject private var history = HistoryStore.shared
     @Environment(\.scenePhase) private var phase
+    @AppStorage("tempUnit") private var unit = "celsius"
 
     var body: some Scene {
         WindowGroup {
@@ -12,7 +15,17 @@ struct DewPointApp: App {
                 .environmentObject(ble)
                 .environmentObject(history)
                 .tint(Theme.accent)
+                .sheet(isPresented: Binding(get: { route.sensorID != nil }, set: { if !$0 { route.sensorID = nil } })) {
+                    if let id = route.sensorID {
+                        NavigationStack { SensorDetailView(sensorID: id) }
+                            .environmentObject(ble).environmentObject(history)
+                    }
+                }
+                .onAppear {
+                    SnapshotStore.save(sensors: ble.sensors, live: ble.live)
+                }
         }
+        .onChange(of: unit) { _ in SnapshotStore.save(sensors: ble.sensors, live: ble.live) }
         .onChange(of: phase) { p in
             switch p {
             case .active: ble.startScanning()

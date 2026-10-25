@@ -3,7 +3,7 @@ name: Build iOS app
 on:
   push:
     branches: [main]
-    paths: ["App/**", "project.yml", ".github/workflows/ios.yml", ".github/scripts/**"]
+    paths: ["App/**", "Shared/**", "DewPointWidget/**", "project.yml", ".github/workflows/ios.yml", ".github/scripts/**"]
   workflow_dispatch:
 
 permissions:
@@ -70,6 +70,11 @@ jobs:
           VERSION=$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" Payload/DewPoint.app/Info.plist)
           # Sideloaders (FlareStore etc.) only compare the version string, so make it <version>.<build>.
           /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VERSION.$BUILD" Payload/DewPoint.app/Info.plist
+          EXT="Payload/DewPoint.app/PlugIns/DewPointWidget.appex"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $BUILD" "$EXT/Info.plist"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VERSION.$BUILD" "$EXT/Info.plist"
+          codesign --force --sign - --timestamp=none --entitlements "$GITHUB_WORKSPACE/DewPointWidget/DewPointWidget.entitlements" "$EXT"
+          codesign --force --sign - --timestamp=none --entitlements "$GITHUB_WORKSPACE/DewPoint/DewPoint.entitlements" "Payload/DewPoint.app"
           IPA="$APP-$VERSION-build-$BUILD.ipa"
           mkdir -p "$GITHUB_WORKSPACE/dist"
           zip -qr "$GITHUB_WORKSPACE/dist/$IPA" Payload

@@ -2,33 +2,74 @@ name: DewPoint
 options:
   bundleIdPrefix: com.dewpoint
   deploymentTarget:
-    iOS: "16.0"
+    iOS: '16.0'
   createIntermediateGroups: true
 targets:
   DewPoint:
     type: application
     platform: iOS
     sources:
-      - App/Sources
+    - App/Sources
+    - path: Shared
     info:
       path: Generated/Info.plist
       properties:
         CFBundleDisplayName: DewPoint
-        CFBundleShortVersionString: "1.0"
-        CFBundleVersion: "1"
-        NSBluetoothAlwaysUsageDescription: "DewPoint listens to your Govee thermometer over Bluetooth to show temperature and humidity."
+        CFBundleShortVersionString: '1.0'
+        CFBundleVersion: '1'
+        NSBluetoothAlwaysUsageDescription: DewPoint listens to your Govee thermometer
+          over Bluetooth to show temperature and humidity.
         UILaunchScreen: {}
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
         UISupportedInterfaceOrientations:
-          - UIInterfaceOrientationPortrait
+        - UIInterfaceOrientationPortrait
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.dewpoint.app
-        MARKETING_VERSION: "1.0"
-        CURRENT_PROJECT_VERSION: "1"
-        TARGETED_DEVICE_FAMILY: "1"
-        SWIFT_VERSION: "5.0"
-        GENERATE_INFOPLIST_FILE: NO
+        MARKETING_VERSION: '1.0'
+        CURRENT_PROJECT_VERSION: '1'
+        TARGETED_DEVICE_FAMILY: '1'
+        SWIFT_VERSION: '5.0'
+        GENERATE_INFOPLIST_FILE: false
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+    dependencies:
+    - target: DewPointWidget
+    entitlements:
+      path: DewPoint/DewPoint.entitlements
+      properties:
+        com.apple.security.application-groups:
+        - group.com.dewpoint.app
+  DewPointWidget:
+    type: app-extension
+    platform: iOS
+    deploymentTarget: '16.0'
+    sources:
+    - path: DewPointWidget
+    - path: Shared
+    info:
+      path: DewPointWidget/Info.plist
+      properties:
+        CFBundleDisplayName: DewPoint
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    entitlements:
+      path: DewPointWidget/DewPointWidget.entitlements
+      properties:
+        com.apple.security.application-groups:
+        - group.com.dewpoint.app
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.dewpoint.app.widget
+        GENERATE_INFOPLIST_FILE: false
+        SKIP_INSTALL: true
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: $(inherited) WIDGET_EXTENSION
+        TARGETED_DEVICE_FAMILY: 1,2
+settings:
+  base:
+    MARKETING_VERSION: '1.0'
+    CURRENT_PROJECT_VERSION: '1'
+    SWIFT_VERSION: '5.0'
