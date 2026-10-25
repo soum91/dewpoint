@@ -20,6 +20,15 @@
       "screenshotURLs": [],
       "versions": [
         {
+          "version": "1.0.12",
+          "buildVersion": "12",
+          "date": "2026-10-25T22:48:41Z",
+          "localizedDescription": "- Show saved room readings in widget and control previews (2ddab05)\n- Recover widget readings from private cache and sensor history (3962d11)",
+          "downloadURL": "https://github.com/soum91/dewpoint/releases/download/build-12/DewPoint-1.0-build-12.ipa",
+          "size": 374602,
+          "minOSVersion": "16.0"
+        },
+        {
           "version": "1.0.11",
           "buildVersion": "11",
           "date": "2026-10-25T22:48:23Z",
@@ -74,11 +83,11 @@
           "minOSVersion": "16.0"
         }
       ],
-      "version": "1.0.11",
-      "versionDate": "2026-10-25T22:48:23Z",
-      "versionDescription": "- Recover widget readings from private cache and sensor history (3962d11)",
-      "downloadURL": "https://github.com/soum91/dewpoint/releases/download/build-11/DewPoint-1.0-build-11.ipa",
-      "size": 374172,
+      "version": "1.0.12",
+      "versionDate": "2026-10-25T22:48:41Z",
+      "versionDescription": "- Show saved room readings in widget and control previews (2ddab05)\n- Recover widget readings from private cache and sensor history (3962d11)",
+      "downloadURL": "https://github.com/soum91/dewpoint/releases/download/build-12/DewPoint-1.0-build-12.ipa",
+      "size": 374602,
       "appPermissions": {}
     }
   ],
