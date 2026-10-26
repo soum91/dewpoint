@@ -20,7 +20,7 @@ struct RoomEntry: TimelineEntry {
     var humidity: String { sensor.map { String(format: "%.0f%%", $0.humidity) } ?? "--" }
     static func make(_ id: String? = nil) -> RoomEntry {
         let list = SnapshotStore.load()
-        let sensor = id == nil ? list.first : (list.first { $0.id == id } ?? (list.count == 1 ? list.first : nil))
+        let sensor = id.flatMap { chosen in list.first { $0.id == chosen } } ?? list.first
         return .init(date: .now, sensor: sensor)
     }
 }

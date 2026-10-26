@@ -74,6 +74,11 @@ struct HomeBridgeView: View {
 struct SettingsView: View {
     @EnvironmentObject var ble: BLEManager
     @AppStorage("tempUnit") private var unitRaw = TempUnit.celsius.rawValue
+    @State private var lastPublished: Date?
+
+    private var sharedSnapshots: [SnapshotStore.Snapshot] {
+        AppGroup.read([SnapshotStore.Snapshot].self, "sensor-widget.json") ?? []
+    }
 
     var body: some View {
         NavigationStack {
@@ -89,6 +94,28 @@ struct SettingsView: View {
                     Text("Ask Siri \"What's the temperature in DewPoint\", or use the Get Room Temperature / Humidity actions in the Shortcuts app.")
                         .font(.footnote)
                 } header: { Text("Shortcuts & Siri") }
+                Section("Lock Screen widget diagnostics") {
+                    LabeledContent("Shared container", value: AppGroup.isShared ? "Connected" : "Unavailable")
+                    LabeledContent("Group", value: AppGroup.activeGroup ?? "No shared group")
+                        .font(.caption)
+                    LabeledContent("Added sensors", value: "\(ble.sensors.count)")
+                    LabeledContent("Live readings", value: "\(ble.live.count)")
+                    LabeledContent("Shared snapshots", value: "\(sharedSnapshots.count)")
+                    if let s = sharedSnapshots.first {
+                        LabeledContent("Saved temperature", value: String(format: "%.1f°C", s.tempC))
+                        LabeledContent("Reading age", value: s.at.formatted(date: .abbreviated, time: .shortened))
+                    }
+                    Button("Publish widget reading now") {
+                        SnapshotStore.save(sensors: ble.sensors, live: ble.live)
+                        lastPublished = .now
+                    }
+                    if let lastPublished {
+                        Text("Last publish: \(lastPublished, style: .time)")
+                            .font(.caption).foregroundStyle(.secondary)
+                    }
+                    Text("Only sensors added on the Sensors tab are sent to the widget. If shared snapshots stay at 0 while live readings are available, send a screenshot of this section.")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
                 Section("About") {
                     LabeledContent("Version", value: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0")
                     LabeledContent("Sensors", value: "\(ble.sensors.count)")
