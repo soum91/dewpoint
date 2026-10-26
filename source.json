@@ -20,6 +20,15 @@
       "screenshotURLs": [],
       "versions": [
         {
+          "version": "1.0.14",
+          "buildVersion": "14",
+          "date": "2026-10-26T02:12:37Z",
+          "localizedDescription": "- Add minimal 1x1 temperature widget and explicit Control Center artwork test (3476421)",
+          "downloadURL": "https://github.com/soum91/dewpoint/releases/download/build-14/DewPoint-1.0-build-14.ipa",
+          "size": 388908,
+          "minOSVersion": "16.0"
+        },
+        {
           "version": "1.0.13",
           "buildVersion": "13",
           "date": "2026-10-26T00:10:34Z",
@@ -92,11 +101,11 @@
           "minOSVersion": "16.0"
         }
       ],
-      "version": "1.0.13",
-      "versionDate": "2026-10-26T00:10:34Z",
-      "versionDescription": "- Expose sensor-to-widget diagnostics and improve signed-group snapshot lookup (f063453)",
-      "downloadURL": "https://github.com/soum91/dewpoint/releases/download/build-13/DewPoint-1.0-build-13.ipa",
-      "size": 383443,
+      "version": "1.0.14",
+      "versionDate": "2026-10-26T02:12:37Z",
+      "versionDescription": "- Add minimal 1x1 temperature widget and explicit Control Center artwork test (3476421)",
+      "downloadURL": "https://github.com/soum91/dewpoint/releases/download/build-14/DewPoint-1.0-build-14.ipa",
+      "size": 388908,
       "appPermissions": {}
     }
   ],
