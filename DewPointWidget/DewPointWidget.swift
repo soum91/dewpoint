@@ -5,6 +5,7 @@ import AppIntents
 @main struct DewPointWidgets: WidgetBundle {
     var body: some Widget {
         LegacyRoomWidget()
+        CompactTemperatureWidget()
         if #available(iOS 17.0, *) { RoomWidget() }
         if #available(iOS 18.0, *) { RoomTemperatureControl(); RoomHumidityControl() }
     }
@@ -43,6 +44,54 @@ struct LegacyRoomWidget: Widget {
         StaticConfiguration(kind: "DewPointRoom", provider: LegacyRoomProvider()) { RoomView(entry: $0) }
             .configurationDisplayName("Room temperature & humidity").description("Latest room reading and measurement time.")
             .supportedFamilies([.systemSmall, .accessoryCircular, .accessoryRectangular, .accessoryInline])
+    }
+}
+// Dedicated, read-only 1x1 Lock Screen temperature. Intentionally minimal:
+// no button, accessory background, or dynamic layout that can clip in a circle.
+struct CompactTemperatureWidget: Widget {
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: "DewPointLockTemperatureV2", provider: LegacyRoomProvider()) { entry in
+            Group {
+                if #available(iOS 17.0, *) {
+                    CompactTemperatureView(entry: entry)
+                        .containerBackground(for: .widget) { Color.clear }
+                } else {
+                    CompactTemperatureView(entry: entry)
+                }
+            }
+        }
+        .configurationDisplayName("Temperature 1x1")
+        .description("A compact thermometer and your latest saved Govee temperature.")
+        .supportedFamilies([.accessoryCircular, .accessoryRectangular])
+    }
+}
+struct CompactTemperatureView: View {
+    @Environment(\.widgetFamily) private var family
+    let entry: RoomEntry
+
+    var body: some View {
+        Group {
+            if family == .accessoryCircular {
+                VStack(spacing: 1) {
+                    Image(systemName: "thermometer.medium")
+                        .font(.system(size: 16, weight: .semibold))
+                    Text(entry.temperature)
+                        .font(.system(size: 11, weight: .bold))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.65)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                HStack(spacing: 6) {
+                    Image(systemName: "thermometer.medium")
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(entry.sensor?.name ?? "DewPoint")
+                            .font(.caption2).lineLimit(1)
+                        Text(entry.temperature).font(.headline).lineLimit(1)
+                    }
+                }
+            }
+        }
     }
 }
 @available(iOS 17.0, *) struct RoomWidget: Widget {
@@ -89,7 +138,8 @@ struct RoomView: View {
     var body: some ControlWidgetConfiguration {
         AppIntentControlConfiguration(kind: "com.dewpoint.app.temperature", provider: RoomControlProvider()) { entry in
             ControlWidgetButton(action: OpenRoomIntent(entry.sensor?.id ?? "")) {
-                Label("\(entry.sensor?.name ?? "Room") · \(entry.temperature)", systemImage: "thermometer.medium")
+                Image(systemName: "thermometer.medium")
+                    .controlWidgetActionHint("Open DewPoint to refresh room temperature")
             }
         }.displayName("Room temperature").description("Latest saved temperature. Opens the sensor to refresh over Bluetooth.")
     }
