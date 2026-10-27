@@ -20,6 +20,15 @@
       "screenshotURLs": [],
       "versions": [
         {
+          "version": "1.0.17",
+          "buildVersion": "17",
+          "date": "2026-10-27T01:40:54Z",
+          "localizedDescription": "- Run Shortcuts actions in the app instead of the widget extension (0862dc3)",
+          "downloadURL": "https://github.com/soum91/dewpoint/releases/download/build-17/DewPoint-1.0-build-17.ipa",
+          "size": 389040,
+          "minOSVersion": "16.0"
+        },
+        {
           "version": "1.0.16",
           "buildVersion": "16",
           "date": "2026-10-27T01:33:39Z",
@@ -119,11 +128,11 @@
           "minOSVersion": "16.0"
         }
       ],
-      "version": "1.0.16",
-      "versionDate": "2026-10-27T01:33:39Z",
-      "versionDescription": "- Remove Control Center diagnostic probes (4099fdb)",
-      "downloadURL": "https://github.com/soum91/dewpoint/releases/download/build-16/DewPoint-1.0-build-16.ipa",
-      "size": 388994,
+      "version": "1.0.17",
+      "versionDate": "2026-10-27T01:40:54Z",
+      "versionDescription": "- Run Shortcuts actions in the app instead of the widget extension (0862dc3)",
+      "downloadURL": "https://github.com/soum91/dewpoint/releases/download/build-17/DewPoint-1.0-build-17.ipa",
+      "size": 389040,
       "appPermissions": {}
     }
   ],
