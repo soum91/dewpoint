@@ -30,6 +30,11 @@ struct RoomControlConfiguration: ControlConfigurationIntent {
 }
 @available(iOS 17.0, *)
 struct OpenRoomIntent: AppIntent {
+    #if WIDGET_EXTENSION
+    // The widget extension cannot be launched to run intents on this iOS, so
+    // Shortcuts must only see (and run) the copy inside the app.
+    static let isDiscoverable = false
+    #endif
     static var title: LocalizedStringResource = "Open Room Readings"
     static var openAppWhenRun = true
     @Parameter(title: "Sensor ID") var sensorID: String
