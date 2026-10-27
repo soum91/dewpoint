@@ -20,6 +20,15 @@
       "screenshotURLs": [],
       "versions": [
         {
+          "version": "1.0.18",
+          "buildVersion": "18",
+          "date": "2026-10-27T04:45:41Z",
+          "localizedDescription": "- Add one-tap room climate Shortcut for Control Center (72d454e)",
+          "downloadURL": "https://github.com/soum91/dewpoint/releases/download/build-18/DewPoint-1.0-build-18.ipa",
+          "size": 390610,
+          "minOSVersion": "16.0"
+        },
+        {
           "version": "1.0.17",
           "buildVersion": "17",
           "date": "2026-10-27T01:40:54Z",
@@ -128,11 +137,11 @@
           "minOSVersion": "16.0"
         }
       ],
-      "version": "1.0.17",
-      "versionDate": "2026-10-27T01:40:54Z",
-      "versionDescription": "- Run Shortcuts actions in the app instead of the widget extension (0862dc3)",
-      "downloadURL": "https://github.com/soum91/dewpoint/releases/download/build-17/DewPoint-1.0-build-17.ipa",
-      "size": 389040,
+      "version": "1.0.18",
+      "versionDate": "2026-10-27T04:45:41Z",
+      "versionDescription": "- Add one-tap room climate Shortcut for Control Center (72d454e)",
+      "downloadURL": "https://github.com/soum91/dewpoint/releases/download/build-18/DewPoint-1.0-build-18.ipa",
+      "size": 390610,
       "appPermissions": {}
     }
   ],
