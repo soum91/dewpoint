@@ -7,7 +7,7 @@ import AppIntents
         LegacyRoomWidget()
         CompactTemperatureWidget()
         if #available(iOS 17.0, *) { RoomWidget() }
-        if #available(iOS 18.0, *) { RoomTemperatureControl(); RoomHumidityControl(); ProbeAControl(); ProbeBControl(); ProbeCControl() }
+        if #available(iOS 18.0, *) { RoomTemperatureControl(); RoomHumidityControl() }
     }
 }
 struct RoomEntry: TimelineEntry {
