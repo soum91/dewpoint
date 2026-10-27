@@ -34,9 +34,31 @@ struct GetHumidityIntent: AppIntent {
     }
 }
 
+/// Single-tap climate reading for Apple's Shortcuts Control Center button.
+struct GetRoomClimateShortcutIntent: AppIntent {
+    static var title: LocalizedStringResource = "Room Climate"
+    static var description = IntentDescription("Shows the most recent temperature and humidity from DewPoint.")
+
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        guard let s = SnapshotStore.load().first else {
+            return .result(dialog: "No reading yet. Open DewPoint near the sensor first.")
+        }
+        let unit = TempUnit(rawValue: UserDefaults.standard.string(forKey: "tempUnit") ?? "") ?? .celsius
+        let humidity = (s.humidity * 10).rounded() / 10
+        return .result(dialog: IntentDialog(stringLiteral: "\(s.name): \(unit.format(s.tempC)), \(humidity.clean())% humidity, updated \(ageText(s.at))."))
+    }
+}
+
 struct DewPointShortcuts: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
-        AppShortcut(intent: GetTemperatureIntent(), phrases: ["What's the temperature in \(.applicationName)"])
-        AppShortcut(intent: GetHumidityIntent(), phrases: ["What's the humidity in \(.applicationName)"])
+        AppShortcut(intent: GetRoomClimateShortcutIntent(),
+                    phrases: ["Room climate in \(.applicationName)"],
+                    shortTitle: "Room Climate", systemImageName: "thermometer.medium")
+        AppShortcut(intent: GetTemperatureIntent(),
+                    phrases: ["What's the temperature in \(.applicationName)"],
+                    shortTitle: "Temperature", systemImageName: "thermometer")
+        AppShortcut(intent: GetHumidityIntent(),
+                    phrases: ["What's the humidity in \(.applicationName)"],
+                    shortTitle: "Humidity", systemImageName: "humidity")
     }
 }
