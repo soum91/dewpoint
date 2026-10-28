@@ -20,6 +20,15 @@
       "screenshotURLs": [],
       "versions": [
         {
+          "version": "1.0.20",
+          "buildVersion": "20",
+          "date": "2026-10-28T21:41:24Z",
+          "localizedDescription": "- Apple Home tab: say the reading works from anywhere through Keystone (d6af661)",
+          "downloadURL": "https://github.com/soum91/dewpoint/releases/download/build-20/DewPoint-1.0-build-20.ipa",
+          "size": 391519,
+          "minOSVersion": "16.0"
+        },
+        {
           "version": "1.0.19",
           "buildVersion": "19",
           "date": "2026-10-28T21:05:14Z",
@@ -146,11 +155,11 @@
           "minOSVersion": "16.0"
         }
       ],
-      "version": "1.0.19",
-      "versionDate": "2026-10-28T21:05:14Z",
-      "versionDescription": "- Apple Home tab points to the Keystone Bridge (e9213e4)",
-      "downloadURL": "https://github.com/soum91/dewpoint/releases/download/build-19/DewPoint-1.0-build-19.ipa",
-      "size": 391425,
+      "version": "1.0.20",
+      "versionDate": "2026-10-28T21:41:24Z",
+      "versionDescription": "- Apple Home tab: say the reading works from anywhere through Keystone (d6af661)",
+      "downloadURL": "https://github.com/soum91/dewpoint/releases/download/build-20/DewPoint-1.0-build-20.ipa",
+      "size": 391519,
       "appPermissions": {}
     }
   ],
