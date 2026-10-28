@@ -29,6 +29,7 @@ struct HomeBridgeView: View {
                     Label("Temperature, humidity and battery tiles", systemImage: "thermometer.medium")
                     Label("Automations, e.g. AC on above 25°C", systemImage: "wand.and.stars")
                     Label("Smart Auto on the AC uses this reading", systemImage: "air.conditioner.horizontal")
+                    Label("Check it from anywhere in Keystone (remote access)", systemImage: "globe")
                     Label("Siri: \"What's the temperature in the bedroom?\"", systemImage: "waveform")
                 }
 
@@ -55,7 +56,7 @@ struct HomeBridgeView: View {
                 }
 
                 Section {
-                    Text("Apple Home only reaches accessories away from home through a home hub (HomePod or Apple TV). Without one, open Keystone instead: it reaches the bridge from anywhere.")
+                    Text("Away from home, Keystone reaches the bridge through its encrypted relay, so the reading (and everything else on the bridge) works from anywhere. The Apple Home app itself only works away from home with a home hub (HomePod or Apple TV).")
                         .font(.footnote).foregroundStyle(.secondary)
                 }
             }
