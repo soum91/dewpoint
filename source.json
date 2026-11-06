@@ -20,6 +20,15 @@
       "screenshotURLs": [],
       "versions": [
         {
+          "version": "1.0.21",
+          "buildVersion": "21",
+          "date": "2026-11-06T18:59:25Z",
+          "localizedDescription": "- Read the Govee from the Keystone Bridge so the widget refreshes in the background (c552d75)",
+          "downloadURL": "https://github.com/soum91/dewpoint/releases/download/build-21/DewPoint-1.0-build-21.ipa",
+          "size": 423974,
+          "minOSVersion": "16.0"
+        },
+        {
           "version": "1.0.20",
           "buildVersion": "20",
           "date": "2026-10-28T21:41:24Z",
@@ -155,11 +164,11 @@
           "minOSVersion": "16.0"
         }
       ],
-      "version": "1.0.20",
-      "versionDate": "2026-10-28T21:41:24Z",
-      "versionDescription": "- Apple Home tab: say the reading works from anywhere through Keystone (d6af661)",
-      "downloadURL": "https://github.com/soum91/dewpoint/releases/download/build-20/DewPoint-1.0-build-20.ipa",
-      "size": 391519,
+      "version": "1.0.21",
+      "versionDate": "2026-11-06T18:59:25Z",
+      "versionDescription": "- Read the Govee from the Keystone Bridge so the widget refreshes in the background (c552d75)",
+      "downloadURL": "https://github.com/soum91/dewpoint/releases/download/build-21/DewPoint-1.0-build-21.ipa",
+      "size": 423974,
       "appPermissions": {}
     }
   ],
