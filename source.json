@@ -20,6 +20,15 @@
       "screenshotURLs": [],
       "versions": [
         {
+          "version": "1.0.22",
+          "buildVersion": "22",
+          "date": "2026-11-06T20:15:03Z",
+          "localizedDescription": "- Show actual installed app version and build in UI (e1bcd12)",
+          "downloadURL": "https://github.com/soum91/dewpoint/releases/download/build-22/DewPoint-1.0-build-22.ipa",
+          "size": 424160,
+          "minOSVersion": "16.0"
+        },
+        {
           "version": "1.0.21",
           "buildVersion": "21",
           "date": "2026-11-06T18:59:25Z",
@@ -164,11 +173,11 @@
           "minOSVersion": "16.0"
         }
       ],
-      "version": "1.0.21",
-      "versionDate": "2026-11-06T18:59:25Z",
-      "versionDescription": "- Read the Govee from the Keystone Bridge so the widget refreshes in the background (c552d75)",
-      "downloadURL": "https://github.com/soum91/dewpoint/releases/download/build-21/DewPoint-1.0-build-21.ipa",
-      "size": 423974,
+      "version": "1.0.22",
+      "versionDate": "2026-11-06T20:15:03Z",
+      "versionDescription": "- Show actual installed app version and build in UI (e1bcd12)",
+      "downloadURL": "https://github.com/soum91/dewpoint/releases/download/build-22/DewPoint-1.0-build-22.ipa",
+      "size": 424160,
       "appPermissions": {}
     }
   ],
