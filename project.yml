@@ -19,6 +19,9 @@ targets:
         CFBundleVersion: '1'
         NSBluetoothAlwaysUsageDescription: DewPoint listens to your Govee thermometer
           over Bluetooth to show temperature and humidity.
+        NSLocalNetworkUsageDescription: DewPoint reads your Govee temperature from the Keystone Bridge on your Wi-Fi.
+        NSBonjourServices:
+        - _afterglow._tcp
         UILaunchScreen: {}
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false

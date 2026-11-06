@@ -178,6 +178,19 @@ final class BLEManager: NSObject, ObservableObject {
         }
     }
 
+    /// The bridge's reading, used when the phone hasn't heard the sensor itself lately (always the case in the background).
+    func applyBridge(_ r: BridgeRoom) {
+        guard let s = sensors.first(where: {
+            $0.advertisedName.caseInsensitiveCompare(r.name) == .orderedSame
+        }) ?? (sensors.count == 1 ? sensors.first : nil) else { return }
+        if let cur = live[s.id], cur.lastSeen >= r.at { return }
+        live[s.id] = LiveReading(tempC: r.tempC, humidity: r.humidity, battery: r.battery,
+                                 rssi: live[s.id]?.rssi ?? 0, lastSeen: r.at, model: s.model, name: s.advertisedName)
+        history.addLive(Reading(date: r.at, tempC: r.tempC, humidity: r.humidity), for: s.id)
+        lastSnapshotSave = Date()
+        SnapshotStore.save(sensors: sensors, live: live)
+    }
+
     // MARK: History download
 
     func syncHistory(_ id: UUID) {

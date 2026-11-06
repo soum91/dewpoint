@@ -23,13 +23,14 @@ struct DewPointApp: App {
                 }
                 .onAppear {
                     SnapshotStore.save(sensors: ble.sensors, live: ble.live)
+                    BridgeSource.shared.start()
                 }
         }
         .onChange(of: unit) { _ in SnapshotStore.save(sensors: ble.sensors, live: ble.live) }
         .onChange(of: phase) { p in
             switch p {
-            case .active: ble.startScanning()
-            case .background: ble.stopScanning()
+            case .active: ble.startScanning(); BridgeSource.shared.start()
+            case .background: ble.stopScanning(); BridgeSource.shared.stop()
             default: break
             }
         }

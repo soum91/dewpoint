@@ -2,6 +2,8 @@ import SwiftUI
 
 struct HomeBridgeView: View {
     @EnvironmentObject var ble: BLEManager
+    @StateObject private var feed = BridgeSource.shared
+    @State private var manualIP = ""
     @Environment(\.openURL) private var openURL
     private let installer = URL(string: "https://soum91.github.io/afterglow/")!
 
@@ -15,6 +17,21 @@ struct HomeBridgeView: View {
                             .font(.subheadline)
                     }
                     .padding(.vertical, 6)
+                }
+
+                Section {
+                    LabeledContent("Bridge", value: feed.host?.host ?? (feed.searching ? "Searching…" : "Not found"))
+                    if let r = feed.room {
+                        LabeledContent("Its reading", value: String(format: "%.1f° · %.0f%%", r.tempC, r.humidity))
+                    }
+                    if !feed.status.isEmpty { Text(feed.status).font(.footnote).foregroundStyle(.secondary) }
+                    Button("Search again") { feed.find() }
+                    HStack {
+                        TextField("Or type its IP", text: $manualIP).keyboardType(.numbersAndPunctuation).autocorrectionDisabled()
+                        Button("Use") { feed.setManual(manualIP) }.disabled(manualIP.isEmpty)
+                    }
+                } header: { Text("Reading from the bridge") } footer: {
+                    Text("iOS doesn't let apps listen to Bluetooth in the background, so the widget would go stale. The bridge listens all day, and DewPoint and its widget read from it on your home Wi-Fi. Open the app near the sensor and it still reads it directly.")
                 }
 
                 Section {

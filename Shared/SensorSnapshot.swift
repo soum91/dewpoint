@@ -4,10 +4,13 @@ enum SnapshotStore {
     struct Snapshot: Codable {
         var id: String = ""
         let name: String
-        let tempC: Double
-        let humidity: Double
-        let battery: Int
-        let at: Date
+        var tempC: Double
+        var humidity: Double
+        var battery: Int
+        var at: Date
+        var adv: String? = nil      // the sensor's Bluetooth name, to match the bridge's reading
+        var tOff: Double = 0
+        var hOff: Double = 0
     }
 
     private static let key = "dewpoint.snapshot.v1"
@@ -20,7 +23,8 @@ enum SnapshotStore {
                 return Snapshot(id: sensor.id.uuidString, name: sensor.displayName,
                                 tempC: sensor.calibratedTemp(reading.tempC),
                                 humidity: sensor.calibratedHumidity(reading.humidity),
-                                battery: reading.battery, at: reading.lastSeen)
+                                battery: reading.battery, at: reading.lastSeen,
+                                adv: sensor.advertisedName, tOff: sensor.tempOffsetC, hOff: sensor.humidityOffset)
             }
 
             // Reuse a saved reading when the sensor isn't nearby. On a fresh
@@ -34,12 +38,14 @@ enum SnapshotStore {
                 return Snapshot(id: sensor.id.uuidString, name: sensor.displayName,
                                 tempC: sensor.calibratedTemp(last.tempC),
                                 humidity: sensor.calibratedHumidity(last.humidity),
-                                battery: old?.battery ?? -1, at: last.date)
+                                battery: old?.battery ?? -1, at: last.date,
+                                adv: sensor.advertisedName, tOff: sensor.tempOffsetC, hOff: sensor.humidityOffset)
             }
             guard let old else { return nil }
             return Snapshot(id: sensor.id.uuidString, name: sensor.displayName,
                             tempC: old.tempC, humidity: old.humidity,
-                            battery: old.battery, at: old.at)
+                            battery: old.battery, at: old.at,
+                            adv: sensor.advertisedName, tOff: sensor.tempOffsetC, hOff: sensor.humidityOffset)
         }
         guard let data = try? JSONEncoder().encode(snaps) else { return }
         UserDefaults.standard.set(data, forKey: key)
@@ -71,5 +77,8 @@ extension SnapshotStore.Snapshot {
         humidity = try c.decode(Double.self, forKey: .humidity)
         battery = try c.decode(Int.self, forKey: .battery)
         at = try c.decode(Date.self, forKey: .at)
+        adv = try c.decodeIfPresent(String.self, forKey: .adv)
+        tOff = try c.decodeIfPresent(Double.self, forKey: .tOff) ?? 0
+        hOff = try c.decodeIfPresent(Double.self, forKey: .hOff) ?? 0
     }
 }

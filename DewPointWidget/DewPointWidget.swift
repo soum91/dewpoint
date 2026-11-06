@@ -24,19 +24,28 @@ struct RoomEntry: TimelineEntry {
         let sensor = id.flatMap { chosen in list.first { $0.id == chosen } } ?? list.first
         return .init(date: .now, sensor: sensor)
     }
+    /// Same, but asks the bridge first: the phone can't listen for the Govee in the background, the bridge always does.
+    static func fresh(_ id: String? = nil) async -> RoomEntry {
+        var e = make(id)
+        if let s = e.sensor, let r = await BridgeFeed.fetch(timeout: 5), r.at > s.at,
+           s.matches(r, onlyOne: SnapshotStore.load().count == 1) {
+            e.sensor = s.withBridge(r)
+        }
+        return e
+    }
 }
 struct LegacyRoomProvider: TimelineProvider {
     func placeholder(in context: Context) -> RoomEntry { .make() }
     func getSnapshot(in context: Context, completion: @escaping (RoomEntry) -> Void) { completion(.make()) }
     func getTimeline(in context: Context, completion: @escaping (Timeline<RoomEntry>) -> Void) {
-        completion(Timeline(entries: [.make()], policy: .after(.now.addingTimeInterval(900))))
+        Task { completion(Timeline(entries: [await RoomEntry.fresh()], policy: .after(.now.addingTimeInterval(600)))) }
     }
 }
 @available(iOS 17.0, *) struct RoomProvider: AppIntentTimelineProvider {
     func placeholder(in context: Context) -> RoomEntry { .make() }
     func snapshot(for configuration: RoomWidgetConfiguration, in context: Context) async -> RoomEntry { .make(configuration.sensor?.id) }
     func timeline(for configuration: RoomWidgetConfiguration, in context: Context) async -> Timeline<RoomEntry> {
-        Timeline(entries: [.make(configuration.sensor?.id)], policy: .after(.now.addingTimeInterval(900)))
+        Timeline(entries: [await RoomEntry.fresh(configuration.sensor?.id)], policy: .after(.now.addingTimeInterval(600)))
     }
 }
 struct LegacyRoomWidget: Widget {
