@@ -20,6 +20,15 @@
       "screenshotURLs": [],
       "versions": [
         {
+          "version": "1.0.23",
+          "buildVersion": "23",
+          "date": "2026-11-06T20:59:44Z",
+          "localizedDescription": "- Enforce visible installed version/build across app releases (4f9a947)",
+          "downloadURL": "https://github.com/soum91/dewpoint/releases/download/build-23/DewPoint-1.0-build-23.ipa",
+          "size": 424245,
+          "minOSVersion": "16.0"
+        },
+        {
           "version": "1.0.22",
           "buildVersion": "22",
           "date": "2026-11-06T20:15:03Z",
@@ -173,11 +182,11 @@
           "minOSVersion": "16.0"
         }
       ],
-      "version": "1.0.22",
-      "versionDate": "2026-11-06T20:15:03Z",
-      "versionDescription": "- Show actual installed app version and build in UI (e1bcd12)",
-      "downloadURL": "https://github.com/soum91/dewpoint/releases/download/build-22/DewPoint-1.0-build-22.ipa",
-      "size": 424160,
+      "version": "1.0.23",
+      "versionDate": "2026-11-06T20:59:44Z",
+      "versionDescription": "- Enforce visible installed version/build across app releases (4f9a947)",
+      "downloadURL": "https://github.com/soum91/dewpoint/releases/download/build-23/DewPoint-1.0-build-23.ipa",
+      "size": 424245,
       "appPermissions": {}
     }
   ],
