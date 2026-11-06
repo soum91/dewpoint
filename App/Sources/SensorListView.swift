@@ -73,6 +73,9 @@ struct SensorListView: View {
                 } footer: {
                     Text("Only sensors you add are logged. Neighbours' sensors stay out of your history.")
                 }
+                Section("About") {
+                    LabeledContent("Installed version", value: "\(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown") (build \(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "Unknown"))")
+                }
             }
             .navigationTitle("DewPoint")
             .navigationDestination(for: UUID.self) { id in
