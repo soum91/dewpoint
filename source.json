@@ -20,6 +20,15 @@
       "screenshotURLs": [],
       "versions": [
         {
+          "version": "1.0.26",
+          "buildVersion": "26",
+          "date": "2026-11-22T03:52:12Z",
+          "localizedDescription": "- Retain DewPoint Govee LAN send until UDP completion or timeout (289836a)\n- docs: record factual changes for build-25 [skip ci] (5d9ad17)",
+          "downloadURL": "https://github.com/soum91/dewpoint/releases/download/build-26/DewPoint-1.0-build-26.ipa",
+          "size": 432568,
+          "minOSVersion": "16.0"
+        },
+        {
           "version": "1.0.25",
           "buildVersion": "25",
           "date": "2026-11-22T03:50:15Z",
@@ -191,11 +200,11 @@
           "minOSVersion": "16.0"
         }
       ],
-      "version": "1.0.25",
-      "versionDate": "2026-11-22T03:50:15Z",
-      "versionDescription": "- iOS: send Bluetooth feed on main actor; clarify Keystone-only firmware ownership (4c5eed2)\n- iOS: forward direct Govee BLE readings to Keystone ESP32 without extra firmware (2308cc8)\n- Revert unintended DewPoint ESP32 firmware changes; keep Keystone as firmware owner (3a87f01)\n- CI: pin Arduino ESP32 3.3.12 for HomeSpan compatibility (d884a83)\n- Bridge: continuously relay pinned Govee readings to Keystone over local UDP (b7da318)\n- Enforce pseudonymous author metadata and owner privacy (924320b)\n- docs: require verified diagnostic exports [skip ci] (5eefc2e)\n- docs: require verified diagnostic exports [skip ci] (e25d5c7)\n- docs: require verified diagnostics Copy, Share and Files export [skip ci] (7ae7f17)\n- docs: require verified diagnostics Copy, Share and Files export [skip ci] (e4b77c5)\n- ci: separate release tracks when deriving factual changes [skip ci] (f377ea9)\n- ci: reconcile bot-created releases with factual notes [skip ci] (e4d8591)\n- ci: verify and record actual release changes [skip ci] (a2c6438)\n- docs: require evidence-based release changelog [skip ci] (3dd0995)\n- docs: initialize factual release changelog [skip ci] (99be9b5)",
-      "downloadURL": "https://github.com/soum91/dewpoint/releases/download/build-25/DewPoint-1.0-build-25.ipa",
-      "size": 429914,
+      "version": "1.0.26",
+      "versionDate": "2026-11-22T03:52:12Z",
+      "versionDescription": "- Retain DewPoint Govee LAN send until UDP completion or timeout (289836a)\n- docs: record factual changes for build-25 [skip ci] (5d9ad17)",
+      "downloadURL": "https://github.com/soum91/dewpoint/releases/download/build-26/DewPoint-1.0-build-26.ipa",
+      "size": 432568,
       "appPermissions": {}
     }
   ],
