@@ -1,0 +1,23 @@
+=== esp32 ===
+In file included from /home/runner/Arduino/libraries/HomeSpan/src/HAP.h:36,
+                 from /home/runner/Arduino/libraries/HomeSpan/src/HAP.cpp:34:
+/home/runner/Arduino/libraries/HomeSpan/src/SRP.h:30:10: fatal error: mbedtls/sha512.h: No such file or directory
+   30 | #include <mbedtls/sha512.h>
+      |          ^~~~~~~~~~~~~~~~~~
+compilation terminated.
+
+[92mUsed library[0m   [92mVersion[0m [90mPath[0m
+[93mHomeSpan[0m       2.1.8   [90m/home/runner/Arduino/libraries/HomeSpan[0m
+[93mArduinoOTA[0m     4.0.0   [90m/home/runner/.arduino15/packages/esp32/hardware/esp32/4.0.0/libraries/ArduinoOTA[0m
+[93mNetworking[0m     4.0.0   [90m/home/runner/.arduino15/packages/esp32/hardware/esp32/4.0.0/libraries/Network[0m
+[93mUpdate[0m         4.0.0   [90m/home/runner/.arduino15/packages/esp32/hardware/esp32/4.0.0/libraries/Update[0m
+[93mEthernet[0m       4.0.0   [90m/home/runner/.arduino15/packages/esp32/hardware/esp32/4.0.0/libraries/Ethernet[0m
+[93mSPI[0m            4.0.0   [90m/home/runner/.arduino15/packages/esp32/hardware/esp32/4.0.0/libraries/SPI[0m
+[93mWiFi[0m           4.0.0   [90m/home/runner/.arduino15/packages/esp32/hardware/esp32/4.0.0/libraries/WiFi[0m
+[93mNimBLE-Arduino[0m 2.5.1   [90m/home/runner/Arduino/libraries/NimBLE-Arduino[0m
+[93mPreferences[0m    4.0.0   [90m/home/runner/.arduino15/packages/esp32/hardware/esp32/4.0.0/libraries/Preferences[0m
+[93mESPmDNS[0m        4.0.0   [90m/home/runner/.arduino15/packages/esp32/hardware/esp32/4.0.0/libraries/ESPmDNS[0m
+
+[92mUsed platform[0m [92mVersion[0m [90mPath[0m
+[93mesp32:esp32[0m   4.0.0   [90m/home/runner/.arduino15/packages/esp32/hardware/esp32/4.0.0[0m
+Error during build: exit status 1
