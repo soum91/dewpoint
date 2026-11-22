@@ -13,7 +13,7 @@ struct HomeBridgeView: View {
                 Section {
                     VStack(alignment: .leading, spacing: 10) {
                         Image(systemName: "homekit").font(.largeTitle).foregroundStyle(Theme.accent)
-                        Text("Your Govee reaches Apple Home through the Keystone Bridge, the same ESP32 that carries your lights, TV, purifier, sound bar and AC. It listens to the H5102 over Bluetooth and shows it in Home as a temperature, humidity and battery sensor.")
+                        Text("DewPoint reads the Govee on this iPhone and forwards fresh readings to the Keystone ESP32 while the app is running. The Keystone iOS app manages the bridge and its firmware; the bridge sends temperature, humidity and battery status to Apple Home. When the iPhone cannot report, the bridge uses its own Bluetooth fallback.")
                             .font(.subheadline)
                     }
                     .padding(.vertical, 6)
@@ -30,8 +30,12 @@ struct HomeBridgeView: View {
                         TextField("Or type its IP", text: $manualIP).keyboardType(.numbersAndPunctuation).autocorrectionDisabled()
                         Button("Use") { feed.setManual(manualIP) }.disabled(manualIP.isEmpty)
                     }
-                } header: { Text("Reading from the bridge") } footer: {
-                    Text("iOS doesn't let apps listen to Bluetooth in the background, so the widget would go stale. The bridge listens all day, and DewPoint and its widget read from it on your home Wi-Fi. Open the app near the sensor and it still reads it directly.")
+                    LabeledContent("Feed attempts", value: "\(feed.feedAttempts)")
+                    if let last = feed.lastFeedAttempt {
+                        LabeledContent("Last forwarded", value: last.formatted(date: .omitted, time: .standard))
+                    }
+                } header: { Text("Govee feed to Keystone") } footer: {
+                    Text("DewPoint can forward only while iOS delivers Bluetooth observations. Background or suspended scanning is not guaranteed; Keystone's BLE fallback remains enabled. View the actual received-packet count in the Keystone app under Bridge › Thermometer.")
                 }
 
                 Section {
@@ -39,7 +43,7 @@ struct HomeBridgeView: View {
                         Label("Open Keystone", systemImage: "cpu")
                     }
                 } footer: {
-                    Text("Keystone shows what the bridge hears from the Govee (Home tab › Room), and Bridge › Pick a different Govee sensor if it locked onto the wrong one.")
+                    Text("Open the Keystone iOS app to manage the bridge, install its firmware, inspect DewPoint feed status, and choose the Govee sensor.")
                 }
 
                 Section("What you get in Apple Home") {
@@ -51,16 +55,11 @@ struct HomeBridgeView: View {
                 }
 
                 Section {
-                    step(1, "Flash the bridge", "On a computer, open the installer page in Chrome, plug the ESP32 in and click Connect and install.")
-                    step(2, "Join its Wi-Fi", "On your phone, join the open \"Keystone-Setup\" network. The setup page pops up: pick your 2.4 GHz Wi-Fi.")
-                    step(3, "Add to Home", "Home app › + › Add Accessory › More options › \"Keystone Bridge\", code 466-37-726.")
-                    step(4, "Pair Keystone", "Keystone finds the bridge on your Wi-Fi. The Govee shows up on its own.")
-                } header: { Text("Setting up a new bridge") } footer: {
-                    Text("On first start the bridge locks onto the strongest Govee sensor it hears for 30 seconds, so keep it close to the right one. Then it listens in short bursts every couple of minutes.")
-                }
-
-                Section {
-                    Link(destination: installer) { Label("Bridge installer", systemImage: "arrow.down.circle") }
+                    step(1, "Open Keystone", "Use the Keystone iOS app to pair and manage the ESP32 bridge, including its firmware.")
+                    step(2, "Stay on home Wi-Fi", "Open DewPoint near your Govee sensor. Its fresh readings are sent to the bridge when available.")
+                    step(3, "Add in Apple Home", "The Keystone bridge exposes the thermometer, humidity and battery service.")
+                } header: { Text("How the apps work together") } footer: {
+                    Text("There is no DewPoint firmware to flash. Keystone is the only firmware project. Both apps can read status from the same bridge.")
                 }
 
                 if !ble.sensors.isEmpty {

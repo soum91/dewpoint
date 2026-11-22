@@ -167,6 +167,8 @@ final class BLEManager: NSObject, ObservableObject {
             return
         }
         live[id] = reading
+        // Forward ONLY direct Bluetooth observations, not bridge-fetched snapshots.
+        BridgeSource.shared.forward(sensor: sensors[idx], reading: reading)
         if sensors[idx].advertisedName != name, !name.isEmpty {
             sensors[idx].advertisedName = name
         }
@@ -307,7 +309,10 @@ extension BLEManager: CBCentralManagerDelegate {
 
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral,
                         advertisementData: [String: Any], rssi RSSI: NSNumber) {
-        let name = (advertisementData[CBAdvertisementDataLocalNameKey] as? String) ?? peripheral.name ?? ""
+        // Some H5102 frames omit their name. Use the saved CoreBluetooth UUID
+        // mapping instead of discarding a valid observation from the known sensor.
+        let name = (advertisementData[CBAdvertisementDataLocalNameKey] as? String)
+            ?? peripheral.name ?? sensors.first(where: { $0.id == peripheral.identifier })?.advertisedName ?? ""
         let md = advertisementData[CBAdvertisementDataManufacturerDataKey] as? Data
         let adv = GoveeParser.parse(name: name, manufacturerData: md)
         if captureRaw, captureAll || adv != nil || GoveeParser.looksLikeGovee(name: name) || GoveeParser.looksLikeGovee(manufacturerData: md),

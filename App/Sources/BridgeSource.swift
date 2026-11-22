@@ -15,6 +15,57 @@ final class BridgeSource: ObservableObject {
 
     private var browser: NWBrowser?
     private var timer: Timer?
+    @Published private(set) var feedAttempts = 0
+    @Published private(set) var lastFeedAttempt: Date?
+    private var lastForwarded = Date.distantPast
+    private var feedSequence: UInt32 = 0
+
+    /// DewPoint is the iOS app. Only genuine CoreBluetooth observations get forwarded:
+    /// readings fetched FROM Keystone must never be echoed back to the ESP32.
+    /// iOS does not guarantee continuous background advertisement scanning.
+    func forward(sensor: SensorInfo, reading: LiveReading) {
+        guard let h = host, !h.host.isEmpty else { return }
+        let name = sensor.advertisedName
+        guard !name.isEmpty, name.count < 32,
+              (name.hasPrefix("GV") || name.hasPrefix("Govee")),
+              name.utf8.allSatisfy({ ($0 >= 48 && $0 <= 57) || ($0 >= 65 && $0 <= 90) ||
+                                      ($0 >= 97 && $0 <= 122) || $0 == 95 || $0 == 45 }) else { return }
+        // One paired sensor only: otherwise use Keystone's currently selected Govee name.
+        if let paired = room?.name, !paired.isEmpty,
+           paired.caseInsensitiveCompare(name) != .orderedSame { return }
+        if room == nil, BLEManager.shared.sensors.first?.id != sensor.id { return }
+        let age = Date().timeIntervalSince(reading.lastSeen)
+        guard (0...120).contains(age), (-40...100).contains(reading.tempC),
+              (0...100).contains(reading.humidity), (0...100).contains(reading.battery),
+              Date().timeIntervalSince(lastForwarded) >= 12 else { return }
+
+        feedSequence &+= 1
+        lastForwarded = Date()
+        lastFeedAttempt = lastForwarded
+        feedAttempts += 1
+        let packet = String(format: "DPG2,%@,%.2f,%.2f,%d,%u,%u",
+                            name, reading.tempC, reading.humidity, reading.battery,
+                            UInt32(age * 1000), feedSequence)
+        guard let data = packet.data(using: .utf8),
+              let port = NWEndpoint.Port(rawValue: 8092) else { return }
+        let parameters = NWParameters.udp
+        parameters.requiredInterfaceType = .wifi  // never use a cellular data route
+        let connection = NWConnection(host: NWEndpoint.Host(h.host), port: port, using: parameters)
+        connection.stateUpdateHandler = { [weak connection] state in
+            switch state {
+            case .ready:
+                connection?.send(content: data, completion: .contentProcessed { _ in
+                    connection?.cancel()
+                })
+            case .failed:
+                connection?.cancel()
+            default:
+                break
+            }
+        }
+        connection.start(queue: DispatchQueue.global(qos: .utility))
+    }
+
 
     func start() {
         poll()
