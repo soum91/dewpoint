@@ -19,6 +19,7 @@ final class BridgeSource: ObservableObject {
     @Published private(set) var lastFeedAttempt: Date?
     private var lastForwarded = Date.distantPast
     private var feedSequence: UInt32 = 0
+    private var pendingFeeds: [UUID: NWConnection] = [:]  // retain UDP sends until completion
 
     /// DewPoint is the iOS app. Only genuine CoreBluetooth observations get forwarded:
     /// readings fetched FROM Keystone must never be echoed back to the ESP32.
@@ -51,19 +52,27 @@ final class BridgeSource: ObservableObject {
         let parameters = NWParameters.udp
         parameters.requiredInterfaceType = .wifi  // never use a cellular data route
         let connection = NWConnection(host: NWEndpoint.Host(h.host), port: port, using: parameters)
-        connection.stateUpdateHandler = { [weak connection] state in
+        let id = UUID()
+        pendingFeeds[id] = connection
+        connection.stateUpdateHandler = { [weak self, weak connection] state in
             switch state {
             case .ready:
                 connection?.send(content: data, completion: .contentProcessed { _ in
                     connection?.cancel()
+                    Task { @MainActor in self?.pendingFeeds[id] = nil }
                 })
-            case .failed:
+            case .failed, .cancelled:
                 connection?.cancel()
+                Task { @MainActor in self?.pendingFeeds[id] = nil }
             default:
                 break
             }
         }
         connection.start(queue: DispatchQueue.global(qos: .utility))
+        Task { @MainActor [weak self] in
+            try? await Task.sleep(nanoseconds: 6_000_000_000)
+            self?.pendingFeeds.removeValue(forKey: id)?.cancel()
+        }
     }
 
 
