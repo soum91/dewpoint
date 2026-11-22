@@ -168,7 +168,10 @@ final class BLEManager: NSObject, ObservableObject {
         }
         live[id] = reading
         // Forward ONLY direct Bluetooth observations, not bridge-fetched snapshots.
-        BridgeSource.shared.forward(sensor: sensors[idx], reading: reading)
+        let savedSensor = sensors[idx]
+        Task { @MainActor in
+            BridgeSource.shared.forward(sensor: savedSensor, reading: reading)
+        }
         if sensors[idx].advertisedName != name, !name.isEmpty {
             sensors[idx].advertisedName = name
         }

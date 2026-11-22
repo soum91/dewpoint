@@ -5,7 +5,6 @@ struct HomeBridgeView: View {
     @StateObject private var feed = BridgeSource.shared
     @State private var manualIP = ""
     @Environment(\.openURL) private var openURL
-    private let installer = URL(string: "https://soum91.github.io/afterglow/")!
 
     var body: some View {
         NavigationStack {
@@ -32,7 +31,7 @@ struct HomeBridgeView: View {
                     }
                     LabeledContent("Feed attempts", value: "\(feed.feedAttempts)")
                     if let last = feed.lastFeedAttempt {
-                        LabeledContent("Last forwarded", value: last.formatted(date: .omitted, time: .standard))
+                        LabeledContent("Last feed attempt", value: last.formatted(date: .omitted, time: .standard))
                     }
                 } header: { Text("Govee feed to Keystone") } footer: {
                     Text("DewPoint can forward only while iOS delivers Bluetooth observations. Background or suspended scanning is not guaranteed; Keystone's BLE fallback remains enabled. View the actual received-packet count in the Keystone app under Bridge › Thermometer.")
