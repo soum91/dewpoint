@@ -24,8 +24,7 @@ jobs:
           ESP_URL: https://espressif.github.io/arduino-esp32/package_esp32_index.json
         run: |
           arduino-cli core update-index --additional-urls "$ESP_URL"
-          # Pin the same core as Keystone; ESP32 core 4.x breaks HomeSpan 2.1.x (mbedtls headers).
-          arduino-cli core install esp32:esp32@3.3.12 --additional-urls "$ESP_URL"
+          arduino-cli core install esp32:esp32 --additional-urls "$ESP_URL"
           arduino-cli lib update-index
           arduino-cli lib install "HomeSpan" "NimBLE-Arduino@2.5.1"
           arduino-cli core list

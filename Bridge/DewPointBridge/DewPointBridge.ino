@@ -15,8 +15,6 @@
 #include "HomeSpan.h"
 #include <NimBLEDevice.h>
 #include <Preferences.h>
-#include <WiFi.h>
-#include <WiFiUdp.h>
 
 // ---- Optional config -------------------------------------------------------------
 // Set to your sensor's exact Bluetooth name (shown in the DewPoint app, e.g. "GVH5102_9A4C")
@@ -28,10 +26,6 @@
 #define STALE_MS (10UL * 60UL * 1000UL)
 // Minimum time between pushes to Home for each value (ms).
 #define PUSH_INTERVAL_MS 15000
-// Broadcast fresh measurements to Keystone on the local Wi-Fi; no cloud or iPhone required.
-#define KEYSTONE_FEED_PORT 8092
-#define KEYSTONE_FEED_INTERVAL_MS 15000UL
-#define KEYSTONE_FEED_MAX_AGE_MS 120000UL
 // -----------------------------------------------------------------------------------
 
 static portMUX_TYPE dataMux = portMUX_INITIALIZER_UNLOCKED;
@@ -49,9 +43,6 @@ static char bestAddr[18] = "";     // auto-pick candidate, guarded by dataMux
 static char bestName[32] = "";
 static volatile int bestRssi = -127;
 static uint32_t bootMs = 0;
-static WiFiUDP keystoneFeed;
-static uint32_t nextKeystoneFeedMs = 0;
-static uint32_t keystoneFeedSent = 0;
 
 // ---- Govee advertisement parsing ---------------------------------------------------
 
@@ -97,10 +88,6 @@ class ScanCallbacks : public NimBLEScanCallbacks {
   void onResult(const NimBLEAdvertisedDevice *dev) override {
     if (dev->getManufacturerDataCount() == 0) return;
     std::string name = dev->getName();
-    // H5102 advertisements sometimes omit the name after the initial discovery.
-    // Retain the known identity for the pinned MAC instead of silently losing updates.
-    if (name.empty() && locked && strcasecmp(dev->getAddress().toString().c_str(), lockedAddr) == 0)
-      name = lockedName;
     float t, h; int batt;
     if (!parseGovee(name, dev->getManufacturerData(), t, h, batt)) return;
 
@@ -218,51 +205,10 @@ static void forgetSensor(const char *) {
 }
 
 static void showSensor(const char *) {
-  Serial.printf("Locked sensor: %s (%s), Keystone LAN feeds: %lu\n", locked ? lockedName : "none", locked ? lockedAddr : "-", (unsigned long)keystoneFeedSent);
+  Serial.printf("Locked sensor: %s (%s)\n", locked ? lockedName : "none", locked ? lockedAddr : "-");
   Serial.printf("Last: %.1f C  %.1f%%  batt %d%%  heard %lus ago\n",
                 (float)gTemp, (float)gHum, (int)gBatt,
                 gLastHeardMs ? (unsigned long)((millis() - gLastHeardMs) / 1000) : 0UL);
-}
-
-// ---- Keystone LAN feed ----------------------------------------------------------------------
-//
-// The Govee H5102 broadcasts measurements; it does not require a persistent GATT connection.
-// This bridge keeps scanning the pinned MAC and broadcasts only recent readings to Keystone.
-// Datagrams are limited to the local subnet, and Keystone independently checks identity,
-// validity and freshness before updating its HomeKit characteristics.
-
-static void feedKeystone() {
-  if (!locked || WiFi.status() != WL_CONNECTED) return;
-  uint32_t now = millis();
-  if ((int32_t)(now - nextKeystoneFeedMs) < 0) return;
-  nextKeystoneFeedMs = now + KEYSTONE_FEED_INTERVAL_MS;
-
-  float t, h;
-  int battery;
-  uint32_t heard, seq;
-  portENTER_CRITICAL(&dataMux);
-  t = gTemp; h = gHum; battery = gBatt; heard = gLastHeardMs; seq = gSeq;
-  portEXIT_CRITICAL(&dataMux);
-  if (!seq || !heard || now - heard > KEYSTONE_FEED_MAX_AGE_MS) return;
-
-  // Protocol DPG1: MAC, advertised name, C, RH, battery percent, sample age (ms), sequence.
-  // The receiver rejects expired, malformed and wrong-sensor packets. No credentials in traffic.
-  char message[144];
-  int length = snprintf(message, sizeof(message), "DPG1,%s,%s,%.2f,%.2f,%d,%lu,%lu",
-                        lockedAddr, lockedName, (double)t, (double)h, battery,
-                        (unsigned long)(now - heard), (unsigned long)seq);
-  if (length <= 0 || length >= (int)sizeof(message)) return;
-
-  IPAddress ip = WiFi.localIP();
-  IPAddress mask = WiFi.subnetMask();
-  IPAddress broadcast((uint8_t)(ip[0] | (uint8_t)~mask[0]),
-                      (uint8_t)(ip[1] | (uint8_t)~mask[1]),
-                      (uint8_t)(ip[2] | (uint8_t)~mask[2]),
-                      (uint8_t)(ip[3] | (uint8_t)~mask[3]));
-  if (keystoneFeed.beginPacket(broadcast, KEYSTONE_FEED_PORT)) {
-    keystoneFeed.write((const uint8_t *)message, (size_t)length);
-    if (keystoneFeed.endPacket()) keystoneFeedSent++;
-  }
 }
 
 // ---- Arduino -------------------------------------------------------------------------------
@@ -276,7 +222,7 @@ void setup() {
   bootMs = millis();
 
   homeSpan.enableAutoStartAP();
-  homeSpan.setSketchVersion("1.1.0");
+  homeSpan.setSketchVersion("1.0.0");
   homeSpan.begin(Category::Bridges, "DewPoint Bridge", "dewpoint");
 
   new SpanUserCommand('G', "- forget the locked Govee sensor and pick again", forgetSensor);
@@ -303,7 +249,6 @@ void setup() {
 
 void loop() {
   homeSpan.poll();
-  feedKeystone();
 
   if (!locked && (millis() - bootMs > PICK_WINDOW_MS || strlen(SENSOR_NAME) > 0)) {
     portENTER_CRITICAL(&dataMux);

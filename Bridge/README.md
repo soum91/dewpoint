@@ -71,28 +71,3 @@ Serial console (115200 baud, the esptool-js page has a Console tab):
 ## Building locally (optional)
 
 Arduino IDE or arduino-cli with the ESP32 core 3.x, and libraries **HomeSpan** 2.x and **NimBLE-Arduino** 2.x. Use the "Minimal SPIFFS" partition scheme so the app fits.
-
-## Keystone as the primary Apple Home bridge (automatic backup sensor feed)
-
-When this DewPoint ESP32 and Keystone are on the same **trusted 2.4 GHz home LAN**, DewPoint
-keeps scanning the remembered Govee sensor continuously. Every 15 seconds it broadcasts a
-recent temperature/humidity/battery sample on UDP port **8092**. Keystone listens for it
-automatically and prefers fresh DewPoint readings over its own short BLE scan bursts.
-
-- **No extra IP address or cloud account to configure.** DewPoint and Keystone must be on the
-  same broadcast-capable subnet; guest Wi-Fi isolation, VLANs and some mesh networks may block it.
-- Keystone still offers its own BLE fallback whenever the feed is missing for 90 seconds, subject
-  to its existing low-memory safety checks. If neither can hear the sensor, Apple Home marks
-  the sensor inactive when readings expire.
-- Keep DewPoint plugged in and within Bluetooth range of the Govee. The sensor uses BLE
-  **advertisements**, not an always-connected GATT session.
-- **Only add the Keystone thermometer to Apple Home** if you want a single accessory.
-  Existing separate DewPoint Home accessories should be removed from Home to avoid duplicate
-  temperature/humidity tiles. DewPoint's original standalone HomeKit support is retained.
-- The datagrams are **not encrypted or authenticated**. Run this only on a trusted LAN;
-  don't forward UDP 8092 to the internet. Keystone checks the sender subnet, the sensor
-  MAC it already knows, the reading range and sample age, but those are not cryptographic
-  protections. A future paired-key protocol would be needed for untrusted networks.
-
-Keystone reports the chosen source and the last feed age in its existing
-\`/api/info?lite=1\` Govee diagnostics. No factory reset or Apple Home pairing reset is required.
