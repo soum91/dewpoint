@@ -1,5 +1,13 @@
 # Changelog
 
+## [build-26] - 2026-11-22
+
+## Verified changes since build-25
+
+- Retain DewPoint Govee LAN send until UDP completion or timeout ([`289836ac`](https://github.com/soum91/dewpoint/commit/289836ac37443fb3e9322d24a46e848c46e9072d); `App/Sources/BridgeSource.swift`)
+
+[Inspect exact code changes](https://github.com/soum91/dewpoint/compare/build-25...build-26)
+
 ## [build-25] - 2026-11-22
 
 ## Verified changes since build-23
